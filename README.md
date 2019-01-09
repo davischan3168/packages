@@ -1,3 +1,3 @@
 # packages
-# Add AI
+add AI
 delect the jpeg dir in AI
