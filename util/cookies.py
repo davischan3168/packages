@@ -15,6 +15,7 @@ import urllib.error
 import urllib.parse
 from typing import Any, Dict, Iterator, Union  # noqa
 import keyring
+import fnmatch
 
 def get_profile_path():
     if sys.platform in [ 'linux', 'linux2', 'freebsd9']:

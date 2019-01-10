@@ -22,9 +22,11 @@ def pdf2jpeg(inputf,outdir,ds=512):
     pages=pdf_i.getNumPages()
     print('Totally get ***{0:^4}*** pages from "{1}", playpdf start......'.format(pages,inputf))
     try:
+        image=PythonMagick.Image()
+        image.desity(ds)
         for i in range(pages):
-            image = PythonMagick.Image(inputf + '[' + str(i) + ']')
-            image.density(str(ds))
+            #image = PythonMagick.Image(inputf + '[' + str(i) + ']')
+            #image.density(str(ds))
             image.read(inputf + '[' + str(i) + ']')
             image.magick("jpeg")
             image.write(outdir + str(i + 1) + ".jpeg")
@@ -34,9 +36,9 @@ def pdf2jpeg(inputf,outdir,ds=512):
         flag=False
     return flag
 
-def addBlankpage():
-    readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
-    outFile = 'C:/Users/Administrator/Desktop/copy.pdf'
+def addBlankpage(readFile,outFile):
+    #readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
+    #outFile = 'C:/Users/Administrator/Desktop/copy.pdf'
     pdfFileWriter = PdfFileWriter()
 
     # 获取 PdfFileReader 对象
@@ -52,9 +54,9 @@ def addBlankpage():
     pdfFileWriter.write(open(outFile,'wb'))
     return
 
-def splitPdf():
-    readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
-    outFile = 'C:/Users/Administrator/Desktop/copy.pdf'
+def splitPdf(readFile,outFile):
+    #readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
+    #outFile = 'C:/Users/Administrator/Desktop/copy.pdf'
     pdfFileWriter = PdfFileWriter()
 
     # 获取 PdfFileReader 对象
