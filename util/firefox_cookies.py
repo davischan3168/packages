@@ -32,7 +32,8 @@ def firefox_cookies(host):
     conn = sqlite3.connect(sqlite_file)
     c = conn.cursor()
 
-    c.execute("""SELECT name, value FROM moz_cookies WHERE host=?""", (host,))
+    c.execute("""SELECT name, value FROM moz_cookies WHERE  host=?""", (host_key,))
+
     cookies = dict((c[0],c[1]) for c in c.fetchall())
     #print(cookies)
     return cookies

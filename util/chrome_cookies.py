@@ -16,10 +16,17 @@ from typing import Any, Dict, Iterator, Union  # noqa
 import fnmatch
 import keyring
 
-def firefox_cookies(host):
+def firefox_cookies(url):
     """
-    host:  .example.com
+    url:  http://www.example.com
     """
+    parsed_url = urllib.parse.urlparse(url)
+    if parsed_url.scheme:
+        host = parsed_url.netloc[3:]
+        print(host)
+    else:
+        raise urllib.error.URLError("You must include a scheme with your URL.")
+    
     if sys.platform in [ 'linux', 'linux2', 'freebsd9']:
         s1=os.getenv("HOME")
         s2="/.mozilla/firefox"
@@ -33,7 +40,7 @@ def firefox_cookies(host):
     for d in dir:
         if fnmatch.fnmatch(d,'*.default'):
             path=s1+s2+'/'+d+"/cookies.sqlite"
-            #print(path)
+            print(path)
 
     sqlite_file = path
     conn = sqlite3.connect(sqlite_file)
@@ -108,10 +115,10 @@ def clean(decrypted):
     """
     last = decrypted[-1]
     if isinstance(last, int):
-        #return decrypted[:-last].decode('utf8')
-        return decrypted[:-last]
-    #return decrypted[:-ord(last)].decode('utf8')
-    return decrypted[:-ord(last)]
+        return decrypted[:-last].decode('utf8')
+        #return decrypted[:-last]
+    return decrypted[:-ord(last)].decode('utf8')
+    #return decrypted[:-ord(last)]
 
 
 #def chrome_decrypt(encrypted_value: bytes, key: bytes, init_vector: bytes) \
@@ -177,7 +184,7 @@ def get_linux_config(browser):
     """
     # Verify supported browser, fail early otherwise
     if browser.lower() == 'chrome':
-        cookie_file = '~/.config/google-chrome/Default/Cookies'
+        cookie_file = '~/.config/google-chrome-unstable/Default/Cookies'
     elif browser.lower() == "chromium":
         cookie_file = '~/.config/chromium/Default/Cookies'
     else:
@@ -317,6 +324,30 @@ def generate_host_keys(hostname):
         domain = '.'.join(labels[-i:])
         yield domain
         yield '.' + domain
+
+def FetchCookiesFB(url,browser='Chrome'):
+    if browser.lower()=='chrome':
+        if sys.platform == 'darwin' or sys.platform.startswith('linux'):
+            cookies=chrome_cookies(url=url,browser=browser)
+
+        elif sys.platform.startswith('win'):
+            cookies=chrome_cookieswin(url)
+
+        else:
+            raise ValueError("Unkown Computer System ....")
+
+    elif browser.lower() == 'firefox':
+        cookies=firefox_cookies(url)
+        
+    else:
+        raise ValueError("Unkown Browser ......")
+
+    return cookies
+
+    
+            
+            
+            
 
 if __name__=="__main__":
     d=chrome_cookies('http://www.xueqiu.com')
