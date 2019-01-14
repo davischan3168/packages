@@ -38,7 +38,8 @@ def Chrome_hdless():
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
-    driver = webdriver.Chrome(chrome_options=chrome_options,executable_path='/usr/bin/chromedriver')    
+    #driver = webdriver.Chrome(chrome_options=chrome_options,executable_path='/usr/bin/chromedriver')    
+    driver = webdriver.Chrome(options=chrome_options,executable_path='/usr/bin/chromedriver')
     return driver
 
 def get_cookies(url):

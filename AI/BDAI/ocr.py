@@ -68,7 +68,7 @@ def BD_picTword(filePath):
     return d
 
 def BD_jsonTtext(filePath):
-    d=picTword(filePath)
+    d=BD_picTword(filePath)
     dd=[]
     for i in d['words_result']:
         dd.append(i['words'])
@@ -82,7 +82,7 @@ def BD_Pic_Text_dir(filepath):
         for f in files:
             paf=os.path.join(root,f)
             try:
-                txt=jsonTtext(paf)
+                txt=BD_jsonTtext(paf)
                 text.append(txt)
                 print('page %s is ok'%f)
             except Exception as e:

@@ -8,13 +8,15 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 
 
 
-def pdf2jpeg(inputf,outdir,ds=512):
+def pdf2jpeg(inputf,outdir,ds=512,mtype='jpeg'):
     """
     :param i_file: (str) input pdf file (eg: "/home/file.pdf")
     :param o_dire: (str) output image directory (eg: "/home/")
     split pdf file
     :param ds: (int) set ds = 1024 ~= 1MB output under my test
+    mtype='jpeg'
     :return: splited PNG image file
+    将pdf文件转化为jpg的图片文件
     """
     flag=True
     ds=str(ds)
@@ -28,9 +30,10 @@ def pdf2jpeg(inputf,outdir,ds=512):
             #image = PythonMagick.Image(inputf + '[' + str(i) + ']')
             #image.density(str(ds))
             image.read(inputf + '[' + str(i) + ']')
-            image.magick("jpeg")
+            image.magick(mtype)
             image.write(outdir + str(i + 1) + ".jpeg")
             print("{0:>5} page OK......".format(i + 1))
+    
     except Exception as e:
         print(e)
         flag=False
@@ -54,7 +57,10 @@ def addBlankpage(readFile,outFile):
     pdfFileWriter.write(open(outFile,'wb'))
     return
 
-def splitPdf(readFile,outFile):
+def draw_pdf(readFile,outFile,*getpages):
+    """
+    
+    """
     #readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
     #outFile = 'C:/Users/Administrator/Desktop/copy.pdf'
     pdfFileWriter = PdfFileWriter()

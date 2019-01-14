@@ -17,7 +17,10 @@ from typing import Any, Dict, Iterator, Union  # noqa
 import keyring
 import fnmatch
 
-def get_profile_path():
+def firefox_ppath():
+    """
+    获取firefox的default文件。
+    """
     if sys.platform in [ 'linux', 'linux2', 'freebsd9']:
         s1=os.getenv("HOME")
         s2="/.mozilla/firefox"
@@ -31,7 +34,7 @@ def get_profile_path():
             path=s1+s2+'/'+d+"/cookies.sqlite"
             return path
 
-if sys.platform=='darwin':
+if sys.platform in ['darwin']:
     CHROME_CONFIG_DIR = os.path.join(os.getenv('HOME'), 'Library', 'Application Support', 'Google', 'Chrome', 'Default')
     FIREFOX_CONFIG_DIR = os.path.join(os.getenv('HOME'), 'Library', 'Application Support', 'Firefox')
 elif sys.platform in [ 'linux', 'linux2', 'freebsd9']:
