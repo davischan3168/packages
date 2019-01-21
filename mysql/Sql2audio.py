@@ -56,14 +56,26 @@ def ToAudio(text):
         for i in text:
             path='/mnt/f/Chengyu/'+i[0]+'.wav'
             if not os.path.exists(path):
+                """
                 cnt=_getAudio(','.join(i))
+                #cnt=ai.KDXF_tts(','.join(i),path=path)
                 if len(cnt)>0:
+                    print("Writed down %s "%i)
                     with open(path,'wb') as f:
                         f.write(cnt)
                 else:
-                    #cnt=ai.BD_text2audio(','.join(i),path=path)
-                    cnt=ai.KDXF_tts(','.join(i),path=path)
+                    pss
+                    #
+                    #cnt=ai.KDXF_tts(','.join(i),path=path)
+                
+                """
+                #cnt=ai.BD_text2audio(','.join(i),path=path)
+                cnt=ai.KDXF_tts(','.join(i),path=path)
+                print("Writed down ", i)
+
                 time.sleep(0.2)
+            #else:
+            #    print('%s has exitst.'%i)
                     
                 
 

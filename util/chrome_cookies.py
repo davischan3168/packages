@@ -22,7 +22,9 @@ def firefox_cookies(url):
     """
     parsed_url = urllib.parse.urlparse(url)
     if parsed_url.scheme:
-        host = parsed_url.netloc[3:]
+        host = parsed_url.netloc
+        #host = parsed_url.netloc.split('.')
+        #host='.'+'.'.join(host[1:])
         print(host)
     else:
         raise urllib.error.URLError("You must include a scheme with your URL.")
@@ -46,8 +48,19 @@ def firefox_cookies(url):
     conn = sqlite3.connect(sqlite_file)
     c = conn.cursor()
 
-    c.execute("""SELECT name, value FROM moz_cookies WHERE host=?""", (host,))
-    cookies = dict((c[0],c[1]) for c in c.fetchall())
+    cookies={}
+    for hst in generate_host_keys(host):
+        c.execute('SELECT count(*) FROM moz_cookies WHERE host=?',(hst,))
+        cc=c.fetchall()
+        for cs in cc:
+            print(cs)
+            if cs[0]>0:
+                c.execute("""SELECT name, value FROM moz_cookies WHERE host=?""", (hst,))
+                for i in c.fetchall():
+                    cookies[i[0]]=i[1]
+
+    #c.execute("""SELECT name, value FROM moz_cookies WHERE host=?""", (host,))
+    #cookies = dict((c[0],c[1]) for c in c.fetchall())
     #print(cookies)
     return cookies
 
@@ -350,5 +363,6 @@ def FetchCookiesFB(url,browser='Chrome'):
             
 
 if __name__=="__main__":
-    d=chrome_cookies('http://www.xueqiu.com')
+    #d=chrome_cookies('http://www.xueqiu.com')
+    pass
     

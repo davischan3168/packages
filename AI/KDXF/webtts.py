@@ -50,7 +50,7 @@ def getHeader(AUE,voice,engine,speed,volume,rate,pitch):
         #print("x_param:{}".format(paramBase64))
         
         m2 = hashlib.md5()
-        m2.update((API_KEY.encode('utf8') + curTime.encode('utf8') + paramBase64).encode('utf-8'))
+        m2.update((API_KEY.encode('utf8') + curTime.encode('utf8') + paramBase64))
         
         checkSum = m2.hexdigest()
         #print('checkSum:{}'.format(checkSum))
