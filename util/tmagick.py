@@ -19,13 +19,13 @@ def pdf2jpeg(inputf,outdir,ds=512,mtype='jpeg'):
     将pdf文件转化为jpg的图片文件
     """
     flag=True
-    ds=str(ds)
+    #ds=str(ds)
     pdf_i = PyPDF2.PdfFileReader(open(inputf, "rb"))
     pages=pdf_i.getNumPages()
     print('Totally get ***{0:^4}*** pages from "{1}", playpdf start......'.format(pages,inputf))
     try:
         image=PythonMagick.Image()
-        image.desity(ds)
+        image.density(str(ds))
         for i in range(pages):
             #image = PythonMagick.Image(inputf + '[' + str(i) + ']')
             #image.density(str(ds))
@@ -111,6 +111,8 @@ def getPdfContent(filename):
     return content
 
 if __name__=="__main__":
+    pass
+    """
     i_file = sys.argv[1]  
     o_dire = sys.argv[2]  
     ds = sys.argv[3]  
@@ -118,3 +120,4 @@ if __name__=="__main__":
         class_image.ManImage(i_file=i_file, o_dire=o_dire).playpdf(ds=ds)  
     else:  
         sys.exit()  
+    """
