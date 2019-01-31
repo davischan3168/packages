@@ -76,7 +76,7 @@ def C2html(txtpath,output='output.html',index=True):
 
         for line in text:
             line=line.strip()
-            print(line)
+            #print(line)
             if mt1.match(line) is not None:
                 if muI>1:
                     ctt.write('</div>\n')

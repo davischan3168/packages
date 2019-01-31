@@ -1,0 +1,21 @@
+html {font-family: Times, serif;font-size: 12pt;}
+.title,.author { display:none; }
+.todo { color: red; }
+.done { color: green; }
+.timestamp { color: grey }
+.timestamp-kwd { color: CadetBlue }
+.tag { background-color:lightblue; font-weight:normal }
+.target { background-color: lavender; }
+pre {border: 1pt solid #AEBDCC;background-color: #F3F5F7;
+    padding: 5pt;font-family: courier, monospace;}
+table { border-collapse: collapse; }
+td, th {vertical-align: top;border: 1pt solid #ADB9CC;}
+h2{ margin: 5px 0 10px 0;background-color: #AEC5CE; font-size:1.5em;}
+h3{ margin: 0px 0px 5px 0;padding: 5px 5px 5px 10px;
+    font-size:1.2em; border-top: solid 1px #9AB7C2;
+    border-bottom: solid 1px #9AB7C2; font-variant: small-caps; }
+h4{ color: black; margin: 3px 0px 5px 0px;
+  padding: 3px 5px 3px 15px; font-size: 1em;}
+h5{ color: black; margin: 3px 0px 3px 0px;
+  padding: 3px 5px 3px 25px; font-size: 1em;}
+p{ margin:0px 10px 0px 18px; }

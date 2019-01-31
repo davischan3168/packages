@@ -65,7 +65,7 @@ title1=r'''<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
                                  font-weight:bold; }
   /*]]>*/-->
 </style>
-<link rel="stylesheet" type="text/css" href="css/worg.css" />
+<link rel="stylesheet" type="text/css" href="packages/Tohtml/css/worg.css" />
 <script type="text/javascript">
 <!--/*--><![CDATA[/*><!--*/
  function CodeHighlightOn(elem, id)
