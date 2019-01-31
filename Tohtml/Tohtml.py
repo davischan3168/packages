@@ -318,8 +318,6 @@ def C2htmlBase(txtpath,index=True):
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
 
-    output=
-
     try:
         html=open(output,'a',encoding='utf8')
         html.write(title+'\n'+title1+'\n')
