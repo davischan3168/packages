@@ -25,6 +25,13 @@ def C2html(txtpath,output='output.html',index=True):
             if os.path.isfile(txtpath) and (os.path.splitext(txtpath)[1] in ['.txt']):
                 files.append(txtpath)
                 
+    elif isinstance(txtpath,str):
+        path123='tempsdfsf.txt'
+        fff=open(path123,'w',encoding='utf8')
+        fff.write(txtpath)
+        fff.close()
+        files.append(path123)
+                
     else:
         sys.exit()
         
@@ -143,6 +150,9 @@ def C2html(txtpath,output='output.html',index=True):
     if os.path.exists(output):
        os.remove(output)
 
+    if os.path.exists(path123):
+        os.remove(path123)
+        
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
 
