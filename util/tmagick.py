@@ -8,7 +8,7 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 
 
 
-def pdf2jpeg(inputf,outdir,ds=512,mtype='jpeg'):
+def Pdf2Jpeg(inputf,outdir,ds=512,mtype='jpeg'):
     """
     :param i_file: (str) input pdf file (eg: "/home/file.pdf")
     :param o_dire: (str) output image directory (eg: "/home/")
@@ -42,6 +42,9 @@ def pdf2jpeg(inputf,outdir,ds=512,mtype='jpeg'):
 def addBlankpage(readFile,outFile):
     #readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
     #outFile = 'C:/Users/Administrator/Desktop/copy.pdf'
+    """
+    在文件后增加一页空白页
+    """
     pdfFileWriter = PdfFileWriter()
 
     # 获取 PdfFileReader 对象
@@ -59,6 +62,7 @@ def addBlankpage(readFile,outFile):
 
 def draw_pdf(readFile,outFile,*getpages):
     """
+    提取pdf文件中的某些页面，具体体现在getpages之中。
     
     """
     #readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
@@ -70,13 +74,11 @@ def draw_pdf(readFile,outFile,*getpages):
     # 文档总页数
     numPages = pdfFileReader.getNumPages()
 
-    if numPages > 5:
-        # 从第五页之后的页面，输出到一个新的文件中，即分割文档
-        for index in range(5, numPages):
-            pageObj = pdfFileReader.getPage(index)
-            pdfFileWriter.addPage(pageObj)
+    for index in getpages:
+        pageObj = pdfFileReader.getPage(index)
+        pdfFileWriter.addPage(pageObj)
         # 添加完每页，再一起保存至文件中
-        pdfFileWriter.write(open(outFile, 'wb'))
+    pdfFileWriter.write(open(outFile, 'wb'))
     return
 
 def mergePdf(inFileList, outFile):
