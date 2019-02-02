@@ -97,24 +97,30 @@ def txt2htmlv1(txtName,index=True):
     content="output.txt"    
     if os.path.exists(htmlName):
         os.remove(htmlName)
+
     tb=open(table,'w',encoding='utf8')
     ctt=open(content,"w",encoding='utf8')
+
+    tb.write('''<div id="table-of-contents">
+    <h2>Table of Contents</h2>
+    <div id="text-table-of-contents">
+    <ul>\n''')
+
+    #ctt.write('<div id="content">\n')
+    mt1=re.compile(r'^第\w{1,3}编')
+    #mtI=re.compile(r'^第\w{1,3}篇')
+    muI=1
+
     
-    tb.write('<div id="table-of-contents"> <h2>目录</h2><div id="text-table-of-contents"><ul>')
-
-    mt=re.compile(r'^第\w{1,3}编')
-    j=1
-
-    mtrec=re.compile(r'^第\w{1,3}篇')
-    mtrec1=re.compile(r'^第\w{1,3}章')
-    i=1
+    mt2=re.compile(r'^第\w{1,3}章')
+    muII=1
 
     mt3=re.compile(r'^第\w{1,3}节')
-    k=1
-    mt4=re.compile(r'^\w{1,3}、')
-    l=1
+    muIII=1
     
-    ctt.write(div_style) 
+    mt4=re.compile(r'^\w{1,3}、')
+    muIV=1
+    
     for i,txtName in enumerate(files):
         try:
             txt=open(txtName,'r',encoding='utf8')
@@ -128,60 +134,52 @@ def txt2htmlv1(txtName,index=True):
         s='\n'.join(text)
         ss=re.sub(r'\n{1,}',r'\n\n',s)
         text=ss.splitlines()
-        
-        title=os.path.splitext(os.path.basename(txtName))[0]#[2:]
-        txtName=title
-        tb.write(r'<li><a href="#sec-%s%s">%s</a></li>'%(i,txtName,title))
-        title=r'<h1 id="sec-%s%s">%s</h1> '%(i,txtName,title)
-        ctt.write(title)          
-    
+
+        ntitle=os.path.splitext(os.path.basename(txtName))[0]#[2:]
+        tb.write('<li><a href="#sec-%s-%s">%s</a></li>\n'%(i,txtName,ntitle))
+        titles='''<h1 id="sec-%s-%s">%s</h1> \n'''%(i,txtName,ntitle)
+        ctt.write(titles)
+
         for line in text:
             line=line.strip()
-
-            if mt.match(line) is not None:
-                tb.write(r'<li><a href="#sec-%s%s">%s</a></li>'%(j,txtName,line))
-                title=r'<h2 id="sec-%s%s">%s</h2> '%(j,txtName,line)
-                ctt.write(title)
-                j=j+1
+            #print(line)
+            if mt1.match(line) is not None:
+                if muI>1:
+                    ctt.write('</div>\n')
+                    tb.write('</ul>\n')
+                    tb.write('</li>\n')
+                tb.write('<li><a href="#sec-%s-%s">%s</a>\n'%(muI,txtName,line))
+                tb.write('\n')
+                titles='''<div id="outline-container-%s" class="outline-%s">
+                <h2 id="sec-%s-%s">%s</h2>\n'''%(muI,muI+1,muI,txtName,line)
+                ctt.write(titles)
+                #ctt.write('\n')
+                muI=muI+1
+            elif mt2.match(line) is not None:
+                if muII>1:
+                    ctt.write('</div>\n')
+                    tb.write('</ul>\n')
+                    #tb.write('</li>\n')
+                tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a></li>\n'%(muI,muII,txtName,line))
+                #tb.write('\n')
+                titles='<div id="outline-container-%s-%s"><h3 id="sec-%s-%s-%s">%s</h4>\n'%(muI,muII,muI,muII,txtName,line)
+                ctt.write(titles)
+                #ctt.write('\n')
+                muII=muII+1
             elif mt3.match(line) is not None:
-                tb.write(r'<li><a href="#sec-%s%s">%s</a></li>'%(k,txtName,line))
-                title=r'<h4 id="sec-%s%s">%s</h4> '%(k,txtName,line)
-                ctt.write(title)            
-                k=k+1
-        
-            elif mt4.match(line) is not None:
+                if muIII>1:
+                    ctt.write('</div>\n')
+                    #tb.write('</ul>\n')
                 if index:
-                    tb.write(r'<li><a href="#sec-%s%s">%s</a></li>'%(l,txtName,line))
-                    title=r'<h5 id="sec-%s%s">%s</h5> '%(l,txtName,line)
-                    ctt.write(title)            
-                    l=l+1
-                else:
-                    line=line\
-                      .replace('&','&')\
-                      .replace('<','<')\
-                      .replace('® ','® ')\
-                      .replace('"','"')\
-                      .replace('©','©')\
-                      .replace('™','™')\
-                      .replace('<','<')\
-                      .replace('\t',"    ").\
-                      replace(' ',' ')
-                    line=""+htmHighLight(line)
-                    line='<span style="font-size:90%%;letter-spacing:1px"> %s </span>\n'%line
-                    ctt.write(line)
-                
-            elif mtrec.match(line) is not None:
-                tb.write(r'<li><a href="#sec-%s%s">%s</a></li>'%(i,txtName,line))
-                title=r'<h3 id="sec-%s%s">%s</h3> '%(i,txtName,line)
-                #print(title)
-                ctt.write(title)
-                i=i+1
-            elif mtrec1.match(line) is not None:
-                tb.write(r'<li><a href="#sec-%s%s">%s</a></li>'%(i,txtName,line))
-                title=r'<h3 id="sec-%s%s">%s</h3> '%(i,txtName,line)
-                #print(title)
-                ctt.write(title)
-                i=i+1                
+                    tb.write('<ul><li><a  href="#sec-%s-%s-%s-%s">%s</a></li></ul>\n'%(muI,muII,muIII,txtName,line))
+                    #tb.write('\n')
+                    titles='<div id="outline-container-%s-%s-%s"><h4 id="sec-%s-%s-%s-%s">%s</h4>\n '%(muI,muII,muIII,muI,muII,muIII,txtName,line)
+                    ctt.write(titles)            
+                    #tb.write('\n')
+                    muIII=muIII+1
+            #elif (muI==1) and (muII == 1) and (muIII ==1):
+            #        ctt.write('<div>')
+
             elif len(line)>0:
                 line=line\
                   .replace('&','&')\
@@ -193,15 +191,12 @@ def txt2htmlv1(txtName,index=True):
                   .replace('<','<')\
                   .replace('\t',"    ").\
                   replace(' ',' ')
-                line=""+htmHighLight(line)
-                line='<span style="font-size:90%%;letter-spacing:1px"> %s </span>\n'%line
+                line='<p>&emsp;&emsp;%s</p>\n'%line
                 ctt.write(line)
             else:
-                line='</br> <br/>'
-                #print(line)
-                ctt.write(line)
-                
-    ctt.write(r'</div>')
+                pass
+
+    ctt.write('</div>')
     #tb.write(r'</ul></div>')
     tb.write(r'</ul></div></div>')    
     ctt.close()
@@ -260,107 +255,110 @@ def txt2html_inonefile(txtName,index=True):
     #设置保存目录的暂时文件
     content="output.txt"
     #设置保存内容的暂时文件
+
     tb=open(table,'w',encoding='utf8')
     ctt=open(content,"w",encoding='utf8')
+
+    tb.write('''<div id="table-of-contents">
+    <h2>Table of Contents</h2>
+    <div id="text-table-of-contents">
+    <ul>\n''')
+
+    #ctt.write('<div id="content">\n')
+    mt1=re.compile(r'^第\w{1,3}编')
+    #mtI=re.compile(r'^第\w{1,3}篇')
+    muI=1
+
     
-    tb.write('<div id="table-of-contents"> <h2>目录</h2><div id="text-table-of-contents"><ul>')
-    try:
-        txt=open(txtName,'r',encoding='utf8')
-        text=txt.readlines()
-    except:
-        txt=open(txtName,'r',encoding='gbk')
-        text=txt.readlines()
-    txt.close()
-
-    text=[x.strip() for x in text]
-    s='\n'.join(text)
-    ss=re.sub(r'\n{1,}',r'\n\n',s)
-    text=ss.splitlines()
-
-    mt=re.compile(r'^第\w{1,3}编')
-    j=1
-
-    #msj=re.compile(r'^第\w{1,3}部分\n{0,1}\w{2,}')
-    msj=re.compile(r'^选载\w{1,}：\w{1,}')#,re.compile(r'^选载\w{1,}：\w{1,}')]
-    sj=1    
-
-    mtrec=re.compile(r'^第\w{1,3}篇')
-    mtrec1=re.compile(r'^第\w{1,3}章')
-    i=1
+    mt2=re.compile(r'^第\w{1,3}章')
+    muII=1
 
     mt3=re.compile(r'^第\w{1,3}节')
-    k=1
+    muIII=1
+    
     mt4=re.compile(r'^\w{1,3}、')
-    l=1    
-    ctt.write(div_style)
-
-    for line in text:
-        line=line.strip()
-        if mt.match(line) is not None:
-            tb.write(r'<li><a href="#sec-%s">%s</a></li>'%(j,line))
-            title=r'<h2 id="sec-%s">%s</h2> '%(j,line)
-            ctt.write(title)
-            j=j+1
-
-                
-        elif mt3.match(line) is not None:
-            tb.write(r'<li><a href="#sec-%s">%s</a></li>'%(k,line))
-            title=r'<h4 id="sec-%s">%s</h4> '%(k,line)
-            ctt.write(title)            
-            k=k+1
+    muIV=1
+    
+    for i,txtName in enumerate(files):
+        try:
+            txt=open(txtName,'r',encoding='utf8')
+            text=txt.readlines()
+        except:
+            txt=open(txtName,'r',encoding='gbk')
+            text=txt.readlines()            
+        txt.close()
         
-        elif (mt4.match(line) is not None) and index:
-            tb.write(r'<li><a href="#sec-%s">%s</a></li>'%(l,line))
-            title=r'<h5 id="sec-%s">%s</h5> '%(l,line)
-            ctt.write(title)            
-            l=l+1
+        text=[x.strip() for x in text]
+        s='\n'.join(text)
+        ss=re.sub(r'\n{1,}',r'\n\n',s)
+        text=ss.splitlines()
 
-        elif mtrec.match(line) is not None:
-            tb.write(r'<li><a href="#sec-%s">%s</a></li>'%(i,line))
-            title=r'<h3 id="sec-%s">%s</h3> '%(i,line)
-            #print(title)
-            ctt.write(title)
-            i=i+1
-        elif mtrec1.match(line) is not None:
-            tb.write(r'<li><a href="#sec-%s">%s</a></li>'%(i,line))
-            title=r'<h3 id="sec-%s">%s</h3> '%(i,line)
-            #print(title)
-            ctt.write(title)
-            i=i+1
+        ntitle=os.path.splitext(os.path.basename(txtName))[0]#[2:]
+        tb.write('<li><a href="#sec-%s-%s">%s</a></li>\n'%(i,txtName,ntitle))
+        titles='''<h1 id="sec-%s-%s">%s</h1> \n'''%(i,txtName,ntitle)
+        ctt.write(titles)
 
-        elif msj.match(line) is not None:
-            tb.write(r'<li><a href="#sec-%s">%s</a></li>'%(sj,line))
-            title=r'<h2 id="sec-%s">%s</h2> '%(sj,line)
-            ctt.write(title)
-            sj=sj+1
-            
-        elif len(line)>0:
-            line=line\
-              .replace('&','&')\
-              .replace('<','<')\
-              .replace('® ','® ')\
-              .replace('"','"')\
-              .replace('©','©')\
-              .replace('™','™')\
-              .replace('<','<')\
-              .replace('\t',"    ").\
-              replace(' ',' ')
-            #line=r"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+htmHighLight(line)
-            line=""+htmHighLight(line)
-            line='<span style="font-size:90%%;letter-spacing:1px"> %s </span>\n'%line
-            ctt.write(line)
+        for line in text:
+            line=line.strip()
             #print(line)
-            #time.sleep(1)
-        else:
-            line='</br> <br/>'
-            #print(line)
-            ctt.write(line)
-            #pass
-            
-    ctt.write(r'</div>')
-    tb.write(r'</ul></div></div>')
+            if mt1.match(line) is not None:
+                if muI>1:
+                    ctt.write('</div>\n')
+                    tb.write('</ul>\n')
+                    tb.write('</li>\n')
+                tb.write('<li><a href="#sec-%s-%s">%s</a>\n'%(muI,txtName,line))
+                tb.write('\n')
+                titles='''<div id="outline-container-%s" class="outline-%s">
+                <h2 id="sec-%s-%s">%s</h2>\n'''%(muI,muI+1,muI,txtName,line)
+                ctt.write(titles)
+                #ctt.write('\n')
+                muI=muI+1
+            elif mt2.match(line) is not None:
+                if muII>1:
+                    ctt.write('</div>\n')
+                    tb.write('</ul>\n')
+                    #tb.write('</li>\n')
+                tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a></li>\n'%(muI,muII,txtName,line))
+                #tb.write('\n')
+                titles='<div id="outline-container-%s-%s"><h3 id="sec-%s-%s-%s">%s</h4>\n'%(muI,muII,muI,muII,txtName,line)
+                ctt.write(titles)
+                #ctt.write('\n')
+                muII=muII+1
+            elif mt3.match(line) is not None:
+                if muIII>1:
+                    ctt.write('</div>\n')
+                    #tb.write('</ul>\n')
+                if index:
+                    tb.write('<ul><li><a  href="#sec-%s-%s-%s-%s">%s</a></li></ul>\n'%(muI,muII,muIII,txtName,line))
+                    #tb.write('\n')
+                    titles='<div id="outline-container-%s-%s-%s"><h4 id="sec-%s-%s-%s-%s">%s</h4>\n '%(muI,muII,muIII,muI,muII,muIII,txtName,line)
+                    ctt.write(titles)            
+                    #tb.write('\n')
+                    muIII=muIII+1
+            #elif (muI==1) and (muII == 1) and (muIII ==1):
+            #        ctt.write('<div>')
+
+            elif len(line)>0:
+                line=line\
+                  .replace('&','&')\
+                  .replace('<','<')\
+                  .replace('® ','® ')\
+                  .replace('"','"')\
+                  .replace('©','©')\
+                  .replace('™','™')\
+                  .replace('<','<')\
+                  .replace('\t',"    ").\
+                  replace(' ',' ')
+                line='<p>&emsp;&emsp;%s</p>\n'%line
+                ctt.write(line)
+            else:
+                pass
+
+    ctt.write('</div>')
+    #tb.write(r'</ul></div>')
+    tb.write(r'</ul></div></div>')    
     ctt.close()
-    tb.close()
+    tb.close()    
 
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
@@ -429,9 +427,9 @@ def txt2htmldir(path=None,func=txt2html_odir,index=False):
 
 
 if __name__=="__main__":
-    #txt2htmlv1(sys.argv[1])
+    txt2htmlv1(sys.argv[1])
     #txt2htmldir(sys.argv[1],func=txt2html_odir,index=False)
     #txt2html_inonefile(sys.argv[1])
-    txt2html_odir(sys.argv[1])
+    #txt2html_odir(sys.argv[1])
 
             

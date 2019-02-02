@@ -6,13 +6,18 @@
     margin: auto;
     background-image: url(http://orgmode.org/tmp/org-mode-unicorn.png);
     background-repeat: no-repeat;
+    background-color:#C7EDF0;
+
     }
     body #content {
       padding-top: 45px;
+      background-color:#C7EDF0
     }
     body .title {
       margin-left: 120px;
     }
+    p{margin:12px auto;
+      }
 
   /* TOC inspired by http://jashkenas.github.com/coffee-script */
   #table-of-contents {

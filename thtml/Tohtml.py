@@ -3,22 +3,28 @@
 
 import sys,os,time
 import re
-from packages.Tohtml.cfg import title,endd,title1
+from thtml.cfg import title,endd,title1,title2
 
 def C2html(txtpath,output='output.html',index=True):
     """
     txtpath:为单独的文件、一系列文件或一段字符
     并将这些文件中的内容输出到一份html 文件中
     """
+    p=getcsspath()
+    ft='''\n<link rel="stylesheet" type="text/css" href="%s" />'''
+    ll=title+'\n'+title1+ft%p+title2+'\n'
+    #print(ll)
+    
     files=[]
-    if os.path.isfile(txtpath):
+
+    if isinstance(txtpath,list):
+        for f in txtpath:
+            if os.path.isfile(f) and (os.path.splitext(f)[1] in ['.txt']):
+                files.append(f)    
+    elif os.path.isfile(txtpath):
         if os.path.splitext(txtpath)[1] in ['.txt']:
             files.append(txtpath)
-            #tname=os.path.splitext(os.path.basename(txtpath))[0]
-    elif isinstance(txtpath,list):
-        for f in txtpath:
-            if os.path.isfile(txtpath) and (os.path.splitext(txtpath)[1] in ['.txt']):
-                files.append(txtpath)
+
                 
     elif isinstance(txtpath,str):
         path123='tempsdfsf.txt'
@@ -71,7 +77,6 @@ def C2html(txtpath,output='output.html',index=True):
         text=ss.splitlines()
 
         ntitle=os.path.splitext(os.path.basename(txtName))[0]#[2:]
-        #txtName=ntitle
         tb.write('<li><a href="#sec-%s-%s">%s</a></li>\n'%(i,txtName,ntitle))
         titles='''<h1 id="sec-%s-%s">%s</h1> \n'''%(i,txtName,ntitle)
         ctt.write(titles)
@@ -127,14 +132,9 @@ def C2html(txtpath,output='output.html',index=True):
                   .replace('<','<')\
                   .replace('\t',"    ").\
                   replace(' ',' ')
-                #line=""+htmHighLight(line)
-                #line='<span style="font-size:90%%;letter-spacing:1px"> %s </span>\n'%line
-                line='<p>%s</p>\n'%line
+                line='<p>&emsp;&emsp;%s</p>\n'%line
                 ctt.write(line)
             else:
-                #line='</br> <br/>'
-                #print(line)
-                #ctt.write(line)
                 pass
 
     ctt.write('</div>')
@@ -145,23 +145,22 @@ def C2html(txtpath,output='output.html',index=True):
     if os.path.exists(output):
        os.remove(output)
 
-    if os.path.exists(path123):
-        os.remove(path123)
-        
+    
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
 
     try:
         html=open(output,'a',encoding='utf8')
-        html.write(title+'\n'+title1+'\n')
-        html.write('<div id="content">\n')
+        html.write(ll)
+        #html.write('<div id="content">\n')
+        html.write('<div id="content",style="background-color:#C7EDF0">\n')
         html.write(tb.read())
         html.write(ctt.read())
     except:
         html=open(output,'a',encoding='gbk')
-        #html.write(title+'\n')
-        html.write(title+'\n'+title1+'\n')
-        html.write('<div id="content">\n')
+        html.write(ll)
+        #html.write('<div id="content">\n')
+        html.write('<div id="content",style="background-color:#C7EDF0">\n')
         html.write(tb.read())
         html.write(ctt.read())
 
@@ -173,13 +172,36 @@ def C2html(txtpath,output='output.html',index=True):
     print("\n转换成功,保存在%s"%output)
     os.remove(table)
     os.remove(content)
+    try:
+        if os.path.exists(path123):
+            os.remove(path123)
+    except:
+        pass
     return
+######################################
+def getcsspath():
+    if sys.platform.startswith('win'):
+        if os.getcwd() in ['J:\\python']:
+            p='packages/thtml/css/worg.css'
+        else:
+            p=os.path.abspath('J:/python/packages/thtml/css/worg.css')
+    elif sys.platform in ['linux']:
+        if os.getcwd() in ['/media/chen/Davis/python']:
+            p='packages/thtml/css/worg.css'
+        else:
+            p=os.path.abspath('/media/chen/Davis/python/packages/thtml/css/worg.css')
+    return p
 ################################################
 def C2htmlBase(txtpath,index=True):
     """
     txtpath:为单独的文件或一段字符
     
     """
+    p=getcsspath()
+    ft='''\n<link rel="stylesheet" type="text/css" href="%s" />'''
+    ll=title+'\n'+title1+ft%p+title2+'\n'
+    #print(ll)
+    
     files=[]
     if os.path.isfile(txtpath):
         if os.path.splitext(txtpath)[1] in ['.txt']:
@@ -223,7 +245,8 @@ def C2htmlBase(txtpath,index=True):
     muIV=1
     
     for i,txtName in enumerate(files):
-        path=os.path.splitext(os.path.abspath(txtName))[0]+'.html'
+        output=os.path.splitext(os.path.abspath(txtName))[0]+'.html'
+        
         try:
             txt=open(txtName,'r',encoding='utf8')
             text=txt.readlines()
@@ -238,7 +261,6 @@ def C2htmlBase(txtpath,index=True):
         text=ss.splitlines()
 
         ntitle=os.path.splitext(os.path.basename(txtName))[0]#[2:]
-        #txtName=ntitle
         tb.write('<li><a href="#sec-%s-%s">%s</a></li>\n'%(i,txtName,ntitle))
         titles='''<h1 id="sec-%s-%s">%s</h1> \n'''%(i,txtName,ntitle)
         ctt.write(titles)
@@ -294,14 +316,9 @@ def C2htmlBase(txtpath,index=True):
                   .replace('<','<')\
                   .replace('\t',"    ").\
                   replace(' ',' ')
-                #line=""+htmHighLight(line)
-                #line='<span style="font-size:90%%;letter-spacing:1px"> %s </span>\n'%line
-                line='<p>%s</p>\n'%line
+                line='<p>&emsp;&emsp;%s</p>\n'%line
                 ctt.write(line)
             else:
-                #line='</br> <br/>'
-                #print(line)
-                #ctt.write(line)
                 pass
 
     ctt.write('</div>')
@@ -312,27 +329,28 @@ def C2htmlBase(txtpath,index=True):
     if os.path.exists(output):
        os.remove(output)
 
-    if os.path.exists(path123):
-        os.remove(path123)
-        
+    try:
+        if os.path.exists(path123):
+            os.remove(path123)
+    except:
+        pass
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
-
-    try:
+    
+    try:        
         html=open(output,'a',encoding='utf8')
-        html.write(title+'\n'+title1+'\n')
-        html.write('<div id="content">\n')
+        html.write(ll)
+        #html.write('<div id="content">\n')
+        html.write('<div id="content",style="background-color:#C7EDF0">\n')
         html.write(tb.read())
         html.write(ctt.read())
     except:
         html=open(output,'a',encoding='gbk')
-        #html.write(title+'\n')
-        html.write(title+'\n'+title1+'\n')
-        html.write('<div id="content">\n')
+        html.write(ll)
+        #html.write('<div id="content">\n')
+        html.write('<div id="content",style="background-color:#C7EDF0">\n')
         html.write(tb.read())
         html.write(ctt.read())
-
-        
     tb.close()
     ctt.close()
     html.write(endd)
@@ -342,19 +360,25 @@ def C2htmlBase(txtpath,index=True):
     os.remove(content)
     return
 ##########################################################
-def C2html_inOne(txtpath,output='output.html',index=True):
+def C2html_inOne(txtpath=None,output='output.html',index=True):
     """
     将目录txtpath下的txt文件内容全部转到output.html文件中
     """
     files=[]
-    if os.path.isdir(txtpath)
-        for root,ds,fs in os.walk(txtpath):
-            for f in fs:
-                if os.path.splitext(txtpath)[1] in ['.txt']:
-                    files.append(root+'/'+f)
+    if txtpath is None:
+        txtpath=os.getcwd()
+            
+    elif not os.path.isdir(txtpath):
+        raise("txtpath is not dir")
+    
+    for root,ds,fs in os.walk(txtpath):
+        for f in fs:
+            if os.path.splitext(f)[1] in ['.txt']:
+                #print(f)
+                files.append(root+'/'+f)
 
     if len(files)>0:
-        C2html(files,output=output,index=index)
+        C2html(txtpath=files,output=output,index=index)
     return
 ######################################################
 def C2html_OnebyOne(txtpath,index=True):
@@ -362,16 +386,23 @@ def C2html_OnebyOne(txtpath,index=True):
     将目录txtpath下的txt文件内容逐一转到相应的html文件中
     """
     files=[]
-    if os.path.isdir(txtpath)
-        for root,ds,fs in os.walk(txtpath):
-            for f in fs:
-                if os.path.splitext(txtpath)[1] in ['.txt']:
-                    C2htmlBase(txtpath=root+'/'+f,index=index)
-    else:
-        print("txtpath is not dir or the dir has no txt files")
+    if txtpath is None:
+        txtpath=os.getcwd()
+            
+    elif not os.path.isdir(txtpath):
+        raise("txtpath is not dir")
+
+    txtpath='/'.join([i for i in txtpath.split('/') if len(i)>0])
+    for root,ds,fs in os.walk(txtpath):
+        for f in fs:
+            #print(f,txtpath)
+            if os.path.splitext(f)[1] in ['.txt']:
+                #print(root+'/'+f)
+                C2htmlBase(txtpath=root+'/'+f,index=index)
     return
 
     
 if __name__=="__main__":
-    C2html(sys.argv[1])
+    C2html_inOne(sys.argv[1])
+    pass
             

@@ -3,8 +3,8 @@
 
 title=r'''
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="langge for HTML, e.g. ‘en’ (org-export-default-langge)" xml:lang="langge for HTML, e.g. ‘en’ (org-export-default-langge)">
 <head>'''
 
@@ -64,9 +64,11 @@ title1=r'''<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
   .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
                                  font-weight:bold; }
   /*]]>*/-->
-</style>
-<link rel="stylesheet" type="text/css" href="packages/Tohtml/css/worg.css" />
-<script type="text/javascript">
+</style>'''
+
+#<link rel="stylesheet" type="text/css" href="packages/Tohtml/css/worg.css" />
+
+title2='''\n<script type="text/javascript">
 <!--/*--><![CDATA[/*><!--*/
  function CodeHighlightOn(elem, id)
  {
