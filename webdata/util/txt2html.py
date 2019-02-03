@@ -10,6 +10,11 @@ cstr=['，','。','？','！','；','：']
 #string = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+".decode("utf8"), "".decode("utf8"),temp)
 
 div_style=r'<div style="word-spacing:5px;line-height:1.5">'
+htmlcode='<html><meta http-equiv="Content-Type" content="text/html; charset=%s" /><body bgcolor="#C7EDF0">'
+if sys.platform.startswith('win'):
+    htmlcode1=htmlcode%'gbk'
+elif sys.platform in ['linux']:
+    htmlcode1=htmlcode%'utf8'
 def htmlWrapper(content,tag,attr):
     return "<"+tag+" "+attr+">"+content+""
 
@@ -22,60 +27,8 @@ def htmHighLight(line):
                 keywordMatcher=re.compile(r'\b'+i+r'\b')
                 line = keywordMatcher.sub(fontColorWrapper(i,'cf0000'), line)
 
-                
         return line
     
-
-def txt2htm(txtName):
-    
-    files=[]
-    if isinstance(txtName,str):
-        files.append(txtName)
-    elif isinstance(txtName,list):
-        files.extend(txtName)
-
-    for txtName in files:
-        try:
-            txt=open(txtName,'r',encoding='utf8')
-            text=txt.readlines()
-        except:
-            txt=open(txtName,'r',encoding='gbk')
-            text=txt.readlines()            
-    
-        htmlName="output.html"
-        htm=open(htmlName,"a")
-
-        
-        title=os.path.splitext(os.path.basename(txtName))[0][2:]
-        title='<h1 style="TEXT-ALIGN: center">%s</h1> '%title
-        htm.write(r'<html><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><body bgcolor="#C7EDF0">')
-        htm.write(title)
-    
-        for line in text:
-            line=line.strip()
-            if len(line)>0:
-                line=line\
-                  .replace('&','&')\
-                  .replace('<','<')\
-                  .replace('® ','® ')\
-                  .replace('"','"')\
-                  .replace('©','©')\
-                  .replace('™','™')\
-                  .replace('<','<')\
-                  .replace('\t',"    ").\
-                  replace(' ',' ')
-                line=""+htmHighLight(line)
-                line='<span style="font-size:90%%;letter-spacing:1px"> %s </span>\n'%line
-            else:
-                line='</br> <br/>'
-            htm.write( line)
-        txt.close()
-        htm.write('</body></html>')
-        htm.close()
-        print("\n转换成功,保存在"+htmlName+'\n')
-    return
-
-
 def txt2htmlv1(txtName,index=True):
     """
     txtName:文件的名称（含所在的文件夹）
@@ -208,18 +161,13 @@ def txt2htmlv1(txtName,index=True):
         os.remove(htmlName)    
     try:
         html=open(htmlName,'a',encoding='utf8')
-        html.write(r'<html><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><body bgcolor="#C7EDF0">')
+        html.write(htmlcode1)
         html.write(tb.read())
-    except:
-        html=open(htmlName,'a',encoding='gbk')
-        html.write(r'<html><meta http-equiv="Content-Type" content="text/html; charset=gbk" /><body bgcolor="#C7EDF0">')
-        html.write(tb.read())
-
-    try:
-        html=open(htmlName,'a',encoding='utf8')        
         html.write(ctt.read())
     except:
-        html=open(htmlName,'a',encoding='gbk')        
+        html=open(htmlName,'a',encoding='gbk')
+        html.write(htmlcode1)
+        html.write(tb.read())
         html.write(ctt.read())
         
     tb.close()
@@ -240,9 +188,11 @@ def txt2html_inonefile(txtName,index=True):
              False,不含第四节的目录
     ---------------
     在txtName文件目录下生产一html文件。
-    """    
+    """
+    files=[]
     if os.path.isfile(txtName):
         path=os.path.abspath(txtName)
+        files.append(path)
         htmlName=os.path.splitext(path)[0]+'.html'
     else:
         print("%s is not file...."%txtName)
@@ -366,21 +316,16 @@ def txt2html_inonefile(txtName,index=True):
     if os.path.exists(htmlName):
         os.remove(htmlName)
     try:
-        html=open(htmlName,'a',encoding='utf8')
-        html.write(r'<html><meta http-equiv="Content-Type" content="text/html; charset=gbk" /><body bgcolor="#C7EDF0">')
+        html=open(htmlName,'w',encoding='utf8')
+        html.write(htmlcode1)
         html.write(tb.read())
+        html.write(ctt.read())
     except:
-        html=open(htmlName,'a',encoding='gbk')
-        html.write(r'<html><meta http-equiv="Content-Type" content="text/html; charset=gbk" /><body bgcolor="#C7EDF0">')        
+        html=open(htmlName,'w',encoding='gbk')
+        html.write(htmlcode1)
         html.write(tb.read())
+        html.write(ctt.read())
 
-    try:
-        html=open(htmlName,'a',encoding='utf8')        
-        html.write(ctt.read())
-    except:
-        html=open(htmlName,'a',encoding='gbk')        
-        html.write(ctt.read())
-        
     tb.close()
     ctt.close()
     html.write('</body></html>')
@@ -408,9 +353,9 @@ def txt2html_odir(txtName,index=False):
 
 def txt2htmldir(path=None,func=txt2html_odir,index=False):
     """
-    path:文件夹的名称
-    func:txt2html_odir,形成一个个单独的文件
-        :txt2htmlv1，合并成一个文件
+    path:文件夹的名称,若没有输入参数，则默认为None，即当前目录。
+    func:txt2html_odir,形成一个个单独的文件，并保存在源文件的目录下。
+        :txt2htmlv1，合并成一个文件，文件保存在当前工作目录下。
     path:所选择的文件夹
     """
     if path == None:
@@ -427,9 +372,8 @@ def txt2htmldir(path=None,func=txt2html_odir,index=False):
 
 
 if __name__=="__main__":
-    txt2htmlv1(sys.argv[1])
+    #txt2htmlv1(sys.argv[1])
+    txt2htm(sys.argv[1])
     #txt2htmldir(sys.argv[1],func=txt2html_odir,index=False)
     #txt2html_inonefile(sys.argv[1])
     #txt2html_odir(sys.argv[1])
-
-            
