@@ -1,6 +1,79 @@
 #!/usr/bin/env python3
 # -*-coding:utf-8-*-
 
+
+chinese_number_dict = { '零':0,'一':1,'两':2, '二':2, '三':3, '四':4,'五':5,  '六':6,'七':7, '八':8, '九':9, '十':10,'百':100,'千':1000,  '万':10000, "亿":100000000}
+not_in_decimal = "十百千万亿点"
+
+def ch2num(chstr):
+    """
+    将汉字转化为数字:str-->float
+    """
+    if '点' not in chstr:
+        return ch2round(chstr)
+    splits = chstr.split("点")
+    if len(splits) != 2:
+        return splits
+    rount = ch2round(splits[0])
+    decimal = ch2decimal(splits[-1])
+    if rount is not None and decimal is not None:
+        return float(str(rount) + "." + str(decimal))
+    else:
+        return None
+
+def ch2round(chstr):
+    """
+    将汉字转化为数字:str-->int
+    """    
+    no_op = True
+    if len(chstr) >= 2:
+        for i in chstr:
+            if i in not_in_decimal:
+                no_op = False
+    else:
+        no_op = False
+    if no_op:
+        return ch2decimal(chstr)
+
+    result = 0
+    now_base = 1
+    big_base = 1
+    big_big_base = 1
+    base_set = set()
+    chstr = chstr[::-1]
+    for i in chstr:
+        if i not in chinese_number_dict:
+            return None
+        if chinese_number_dict[i] >= 10:
+            if chinese_number_dict[i] > now_base:
+                now_base = chinese_number_dict[i]
+            elif now_base >= chinese_number_dict["万"] and now_base < chinese_number_dict["亿"] and chinese_number_dict[i] > big_base:
+                now_base = chinese_number_dict[i] * chinese_number_dict["万"]
+                big_base = chinese_number_dict[i]
+            elif now_base >= chinese_number_dict["亿"] and chinese_number_dict[i] > big_big_base:
+                now_base = chinese_number_dict[i] * chinese_number_dict["亿"]
+                big_big_base = chinese_number_dict[i]
+            else:
+                return None
+        else:
+            if now_base in base_set and chinese_number_dict[i] != 0:
+                return None
+            result = result + now_base * chinese_number_dict[i]
+            base_set.add(now_base)
+    if now_base not in base_set:
+        result = result + now_base * 1
+    return result
+
+def ch2decimal(chstr):
+    result = ""
+    for i in chstr:
+        if i in not_in_decimal:
+            return None
+        if i not in chinese_number_dict:
+            return None
+        result = result + str(chinese_number_dict[i])
+    return int(result)
+
 class NotIntegerError(Exception):
   pass
  
@@ -12,7 +85,7 @@ _P0 = (u'', u'十', u'百', u'千', )
 _S4, _S8, _S16 = 10 ** 4 , 10 ** 8, 10 ** 16
 _MIN, _MAX = 0, 9999999999999999
  
-def _to_chinese4(num):
+def _to_ch4(num):
   '''转换[0, 10000)之间的阿拉伯数字
   '''
   assert(0 <= num and num < _S4)
@@ -38,7 +111,7 @@ def _to_chinese4(num):
      
     return result[::-1].replace(u'一十', u'十')
      
-def _to_chinese8(num):
+def _to_ch8(num):
   assert(num < _S8)
   to4 = _to_chinese4
   if num < _S4:
@@ -54,9 +127,9 @@ def _to_chinese8(num):
       else:
         return to4(high) + u'万' + to4(low)
        
-def _to_chinese16(num):
+def _to_ch16(num):
   assert(num < _S16)
-  to8 = _to_chinese8
+  to8 = _to_ch8
   mod = _S8
   high, low = num // mod, num % mod
   if low == 0:
@@ -67,7 +140,7 @@ def _to_chinese16(num):
     else:
       return to8(high) + u'亿' + to8(low)
      
-def to_chinese(num):
+def to_ch(num):
   """num:输入的类型为int
   """
   if type(num) != int:
@@ -76,11 +149,11 @@ def to_chinese(num):
     raise OutOfRangeError(u'%d out of range[%d, %d)' % (num, _MIN, _MAX))
    
   if num < _S4:
-    return _to_chinese4(num)
+    return _to_ch4(num)
   elif num < _S8:
-    return _to_chinese8(num)
+    return _to_ch8(num)
   else:
-    return _to_chinese16(num)
+    return _to_ch16(num)
 
 
 unitArab=(2,3,4,5,9)
@@ -98,8 +171,14 @@ numDic=dict(zip(numArab,numStr))
 
 def ChnNumber(s):
     """
-    s:字符串类型的数字,如-->'90'
+    输入字符型的阿拉伯数字或直接输入阿拉伯数字。
+    ----------------------------------------
+    s:字符串类型的数字,如-->'90',
+      如输入的是数字，则先将其转为字符型数据。
     """
+    if isinstance(s,int):
+        s=str(s)
+        
     def wrapper(v):
         '''针对多位连续0的简写规则设计的函数
         例如"壹佰零零"会变为"壹佰","壹仟零零壹"会变为"壹仟零壹"
@@ -142,7 +221,10 @@ for key in common_used_numerals_tmp:
     common_used_numerals[key] = common_used_numerals_tmp[key]
 
 
-def chinese2digits(uchars_chinese):
+def ch2digits(uchars_chinese):
+    """
+    输入中文的数字，输出阿拉伯数字，int
+    """
     total = 0
     r = 1  # 表示单位：个十百千...
     for i in range(len(uchars_chinese) - 1, -1, -1):
@@ -168,7 +250,10 @@ num_str_start_symbol = ['一', '二', '两', '三', '四', '五', '六', '七', 
                         '十']
 more_num_str_symbol = ['零', '一', '二', '两', '三', '四', '五', '六', '七', '八', '九', '十', '百', '千', '万', '亿']
 
-def changeChineseNumToArab(oriStr):
+def ChNumToArab(oriStr):
+    """
+    输入中文的数字，输出阿拉伯数字，str
+    """
     lenStr = len(oriStr);
     aProStr = ''
     if lenStr == 0:
@@ -188,7 +273,7 @@ def changeChineseNumToArab(oriStr):
                     numberStr += oriStr[idx]
                     continue
                 else:
-                    numResult = str(chinese2digits(numberStr))
+                    numResult = str(ch2digits(numberStr))
                     numberStr = ''
                     hasNumStart = False;
                     aProStr += numResult
@@ -197,13 +282,21 @@ def changeChineseNumToArab(oriStr):
             pass
 
     if len(numberStr) > 0:
-        resultNum = chinese2digits(numberStr)
+        resultNum = ch2digits(numberStr)
         aProStr += str(resultNum)
 
     return aProStr
 
+if __name__ == "__main__":
+    print(ch2num("一万三千零二十"))
+    print(ch2num("一万三千两百二十"))
+    print(ch2num("两百五十三"))
+    print(ch2num("三十二"))
+    print(ch2num("二"))
+    print(ch2num("二二三五七"))
+    print(ch2num("十"))
+    print(ch2num("百"))
+    print(ch2num("十二点五"))
+    print(ch2num("三点一四一五九二六"))
+    print(ch2num("三千五百亿一千三百二十五万四千五百六十九点五八三四三九二九一"))
 
-
-
-if __name__=="__main__":
-    df=to_chinese(1002030040506)

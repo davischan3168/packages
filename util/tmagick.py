@@ -18,7 +18,7 @@ def Pdf2Jpeg(inputf,outdir,ds=512,mtype='jpeg'):
     :return: splited PNG image file
     将pdf文件转化为jpg的图片文件
     """
-    flag=True
+    #flag=True
     #ds=str(ds)
     pdf_i = PyPDF2.PdfFileReader(open(inputf, "rb"))
     pages=pdf_i.getNumPages()
@@ -36,8 +36,8 @@ def Pdf2Jpeg(inputf,outdir,ds=512,mtype='jpeg'):
     
     except Exception as e:
         print(e)
-        flag=False
-    return flag
+        #flag=False
+    return
 
 def addBlankpage(readFile,outFile):
     #readFile = 'C:/Users/Administrator/Desktop/RxJava 完全解析.pdf'
