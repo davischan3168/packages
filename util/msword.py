@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*-coding:utf-8-*-
 
-import os,sys
+import os
+import sys
 import re
+#import pickle
+#import codecs
+#import string
+#import shutil
 from docx import Document
+import subprocess
 #need to install python-docx
 try:
     import win32com
@@ -16,6 +22,7 @@ def _read_doc(path):
     读取doc文件,path是doc文件的路径。
     """
     temp='text.txt'
+    path=os.path.abspath(path)
     if sys.platform=='win32':
         word=Dispatch('Word.Application')
         doc = word.Documents.Open(path)
@@ -34,9 +41,12 @@ def _read_doc(path):
         return content
     
     elif sys.platform=='linux':
-        content = os.popen('catdoc %s'%path)
-        #need to install catdoc for linux,for example:aptitude install catdoc
-        content = content.read()
+        try:
+            content = os.popen('catdoc %s'%path)
+            #need to install catdoc for linux,for example:aptitude install catdoc
+            content = content.read()
+        except:
+            content = subprocess.check_output(['antiword',path])
         return content
 
 def _read_docx(path):
@@ -44,6 +54,7 @@ def _read_docx(path):
     读取docx文件,path为docx文件的路径.
     有关文件可以阅读：http://www.cnblogs.com/wrajj/p/4914102.html
     """
+    path=os.path.abspath(path)
     doc=Document(path)
     fullText=[]
     paras=doc.paragraphs
@@ -52,18 +63,43 @@ def _read_docx(path):
     content='\n'.join(fullText)
     return content
 
+def DocSavaAsDocx(path):
+    
+    path=os.path.abspath(path)
+    name=path+'x'
+    if sys.platform=='win32':
+        word=Dispatch('Word.Application')
+        doc = word.Documents.Open(path)
+        
+        if os.path.exists(name):
+            os.remove(name)
+        doc.SaveAs(name,12, False, "", True, "", False, False, False, False)
+        doc.Close()
+        #word.Quit
+    elif sys.platform=='linux':
+        output = subprocess.check_output(["soffice","--headless","--invisible","--convert-to","docx",path,"--outdir",os.path.split(path)[0]])
+
+    return
+
 def ReadDocument(path):
     """
     读取doc和docx文件，输入的文件路径。
     """
     ex=os.path.splitext(path)[1]
     if ex == '.doc':
-        doc=_read_doc(path)
+        try:
+            doc=_read_doc(path)
+        except:
+            path=os.path.abspath(path)
+            name=path+'x'
+            DocSavaAsDocx(path)
+            doc=_read_docx(name)
         return doc
     elif ex =='.docx':
         doc=_read_docx(path)
         return doc
 
 if __name__=="__main__":
-    inpf=sys.argv[1]
-    doc=ReadDocument(inpf)
+    #inpf=sys.argv[1]
+    #doc=ReadDocument(inpf)
+    pass
