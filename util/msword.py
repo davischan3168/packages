@@ -63,7 +63,7 @@ def _read_docx(path):
     content='\n'.join(fullText)
     return content
 
-def DocSavaAsDocx(path):
+def Doc_To_Docx(path):
     
     path=os.path.abspath(path)
     name=path+'x'
@@ -92,7 +92,7 @@ def ReadDocument(path):
         except:
             path=os.path.abspath(path)
             name=path+'x'
-            DocSavaAsDocx(path)
+            Doc_To_Docx(path)
             doc=_read_docx(name)
         return doc
     elif ex =='.docx':
