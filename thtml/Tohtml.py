@@ -5,7 +5,8 @@ import sys,os,time
 import re
 from thtml.cfg import title,endd,title1,title2
 
-def C2html(txtpath,output='output.html',index=True):
+pp='<p style="word-spacing:10px;line-height:1.5">&emsp;&emsp;%s</p>\n'
+def C2html(txtpath,output='output.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtpath:为单独的文件、一系列文件或一段字符
     并将这些文件中的内容输出到一份html 文件中
@@ -47,19 +48,16 @@ def C2html(txtpath,output='output.html',index=True):
     <div id="text-table-of-contents">
     <ul>\n''')
 
-    #ctt.write('<div id="content">\n')
-    mt1=re.compile(r'^第\w{1,3}编')
-    #mtI=re.compile(r'^第\w{1,3}篇')
+    mt1=m1
     muI=1
-
     
-    mt2=re.compile(r'^第\w{1,3}章')
+    mt2=m2
     muII=1
 
-    mt3=re.compile(r'^第\w{1,3}节')
+    mt3=m3
     muIII=1
     
-    mt4=re.compile(r'^\w{1,3}、')
+    mt4=m4
     muIV=1
     
     for i,txtName in enumerate(files):
@@ -132,7 +130,7 @@ def C2html(txtpath,output='output.html',index=True):
                   .replace('<','<')\
                   .replace('\t',"    ").\
                   replace(' ',' ')
-                line='<p>&emsp;&emsp;%s</p>\n'%line
+                line=pp%line
                 ctt.write(line)
             else:
                 pass
@@ -192,7 +190,7 @@ def getcsspath():
             p=os.path.abspath('/media/chen/Davis/python/packages/thtml/css/worg.css')
     return p
 ################################################
-def C2htmlBase(txtpath,index=True):
+def C2htmlBase(txtpath,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtpath:为单独的文件或一段字符
     
@@ -229,19 +227,16 @@ def C2htmlBase(txtpath,index=True):
     <div id="text-table-of-contents">
     <ul>\n''')
 
-    #ctt.write('<div id="content">\n')
-    mt1=re.compile(r'^第\w{1,3}编')
-    #mtI=re.compile(r'^第\w{1,3}篇')
+    mt1=m1
     muI=1
-
     
-    mt2=re.compile(r'^第\w{1,3}章')
+    mt2=m2
     muII=1
 
-    mt3=re.compile(r'^第\w{1,3}节')
+    mt3=m3
     muIII=1
     
-    mt4=re.compile(r'^\w{1,3}、')
+    mt4=m4
     muIV=1
     
     for i,txtName in enumerate(files):
@@ -316,7 +311,7 @@ def C2htmlBase(txtpath,index=True):
                   .replace('<','<')\
                   .replace('\t',"    ").\
                   replace(' ',' ')
-                line='<p>&emsp;&emsp;%s</p>\n'%line
+                line=pp%line
                 ctt.write(line)
             else:
                 pass
@@ -360,9 +355,10 @@ def C2htmlBase(txtpath,index=True):
     os.remove(content)
     return
 ##########################################################
-def C2html_inOne(txtpath=None,output='output.html',index=True):
+def C2html_inOne(txtpath=None,output='output.html',px='\d{1,3}',index=True):
     """
     将目录txtpath下的txt文件内容全部转到output.html文件中
+    px:文中排序的基准。
     """
     files=[]
     if txtpath is None:
@@ -378,6 +374,19 @@ def C2html_inOne(txtpath=None,output='output.html',index=True):
                 files.append(root+'/'+f)
 
     if len(files)>0:
+        ss={}
+        try:
+            for i in files:
+                dd=re.findall(px,i)
+                num=int([j for j in dd if len(j)>0][0])
+                ss[num]=i
+            dds=sorted(ss.items(),key=lambda item:item[0])
+            files=[]
+            for i in dds:
+                files.append(i[1])
+        except Exception as e:
+            print(e)
+                
         C2html(txtpath=files,output=output,index=index)
     return
 ######################################################

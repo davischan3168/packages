@@ -10,9 +10,11 @@ cstr=['，','。','？','！','；','：']
 #string = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+".decode("utf8"), "".decode("utf8"),temp)
 
 div_style=r'<div style="word-spacing:5px;line-height:1.5">'
-htmlcode='<html><meta http-equiv="Content-Type" content="text/html; charset=%s" /><body bgcolor="#C7EDF0">'
+htmlcode='''<html>
+<meta http-equiv="Content-Type" content="text/html; charset=%s" />
+<body bgcolor="#C7EDF0">'''
 if sys.platform.startswith('win'):
-    htmlcode1=htmlcode%'gbk'
+    htmlcode1=htmlcode%'utf8'
 elif sys.platform in ['linux']:
     htmlcode1=htmlcode%'utf8'
 def htmlWrapper(content,tag,attr):
@@ -28,8 +30,8 @@ def htmHighLight(line):
                 line = keywordMatcher.sub(fontColorWrapper(i,'cf0000'), line)
 
         return line
-    
-def txt2htmlv1(txtName,index=True):
+##########################################3
+def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtName:文件的名称（含所在的文件夹）
     index：  True,将第四节的列入目录
@@ -44,7 +46,7 @@ def txt2htmlv1(txtName,index=True):
     elif isinstance(txtName,list):
         files.extend(txtName)
 
-    htmlName="output.html"
+    htmlName="outputtxt.html"
     
     table='table.txt'
     content="output.txt"    
@@ -59,19 +61,16 @@ def txt2htmlv1(txtName,index=True):
     <div id="text-table-of-contents">
     <ul>\n''')
 
-    #ctt.write('<div id="content">\n')
-    mt1=re.compile(r'^第\w{1,3}编')
-    #mtI=re.compile(r'^第\w{1,3}篇')
+    mt1=m1
     muI=1
-
     
-    mt2=re.compile(r'^第\w{1,3}章')
+    mt2=m2
     muII=1
 
-    mt3=re.compile(r'^第\w{1,3}节')
+    mt3=m3
     muIII=1
     
-    mt4=re.compile(r'^\w{1,3}、')
+    mt4=m4
     muIV=1
     
     for i,txtName in enumerate(files):
@@ -178,10 +177,8 @@ def txt2htmlv1(txtName,index=True):
     os.remove(table)
     os.remove(content)
     return
-
-    
-
-def txt2html_inonefile(txtName,index=True):
+###############################################################
+def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtName:文件的名称（含所在的文件夹）
     index：  True,将第四节的列入目录
@@ -214,21 +211,17 @@ def txt2html_inonefile(txtName,index=True):
     <div id="text-table-of-contents">
     <ul>\n''')
 
-    #ctt.write('<div id="content">\n')
-    mt1=re.compile(r'^第\w{1,3}编')
-    #mtI=re.compile(r'^第\w{1,3}篇')
+    mt1=m1
     muI=1
-
     
-    mt2=re.compile(r'^第\w{1,3}章')
+    mt2=m2
     muII=1
 
-    mt3=re.compile(r'^第\w{1,3}节')
+    mt3=m3
     muIII=1
     
-    mt4=re.compile(r'^\w{1,3}、')
-    muIV=1
-    
+    mt4=m4
+    muIV=1    
     for i,txtName in enumerate(files):
         try:
             txt=open(txtName,'r',encoding='utf8')
@@ -334,7 +327,7 @@ def txt2html_inonefile(txtName,index=True):
     os.remove(table)
     os.remove(content)
     return
-
+###################################################
 def txt2html_odir(txtName,index=False):
     """
     txtName:文件的名称（含所在的文件夹）,或是文件名的list
@@ -350,12 +343,13 @@ def txt2html_odir(txtName,index=False):
     else:
         txt2html_inonefile(txtName,index=index)
     return
-
-def txt2htmldir(path=None,func=txt2html_odir,index=False):
+####################################################
+def txt2htmldir(path=None,func=txt2htmlv1,px='\d{1,3}',index=False):
     """
     path:文件夹的名称,若没有输入参数，则默认为None，即当前目录。
-    func:txt2html_odir,形成一个个单独的文件，并保存在源文件的目录下。
-        :txt2htmlv1，合并成一个文件，文件保存在当前工作目录下。
+    func:txt2html_odir,形成一个个单独的文件，文件名与源文件相同，并保存在源文件的目录下。
+        :txt2htmlv1，合并成一个文件，文件保存在当前工作目录下，输出为output.html。
+    px: 按预先定义的方式进行排序
     path:所选择的文件夹
     """
     if path == None:
@@ -366,14 +360,32 @@ def txt2htmldir(path=None,func=txt2html_odir,index=False):
             if os.path.splitext(f)[1] == '.txt':
                 fpath=os.path.join(root,f)
                 dirset.append(fpath)
-    func(dirset,index=index)
+
+    if len(dirset)>0:
+        ss={}
+        try:
+            for i in dirset:
+                dd=re.findall(px,i)
+                num=int([j for j in dd if len(j)>0][0])
+                ss[num]=i
+            dds=sorted(ss.items(),key=lambda item:item[0])
+            dirsett=[]
+            for i in dds:
+                dirsett.append(i[1])
+            #print(dirset)
+        except Exception as e:
+            print(e)
+    if len(dirset)==len(dirsett):
+        func(dirsett,index=index)
+    else:
+        func(dirset,index=index)
     return
 
 
 
 if __name__=="__main__":
     #txt2htmlv1(sys.argv[1])
-    txt2htm(sys.argv[1])
-    #txt2htmldir(sys.argv[1],func=txt2html_odir,index=False)
+    #txt2htm(sys.argv[1])
+    txt2htmldir(sys.argv[1],func=txt2htmlv1,index=False)
     #txt2html_inonefile(sys.argv[1])
     #txt2html_odir(sys.argv[1])

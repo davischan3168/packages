@@ -140,7 +140,7 @@ def _write_file(path,r):
     f.flush()
     return
 def _removef(outpath):
-    lsd=['.aux','.log','.out','.xdv','.text']
+    lsd=['.aux','.log','.out','.xdv','.tex']
     base=os.path.split(outpath)
     basename=os.path.splitext(base[1])[0]
     for ex in lsd:
