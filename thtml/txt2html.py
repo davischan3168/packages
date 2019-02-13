@@ -12,7 +12,8 @@ cstr=['，','。','？','！','；','：']
 div_style=r'<div style="word-spacing:5px;line-height:1.5">'
 htmlcode='''<html>
 <meta http-equiv="Content-Type" content="text/html; charset=%s" />
-<body bgcolor="#C7EDF0">'''
+<body bgcolor="#C7EDF0">
+<title> My Html File</title>'''
 if sys.platform.startswith('win'):
     htmlcode1=htmlcode%'utf8'
 elif sys.platform in ['linux']:

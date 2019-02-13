@@ -1,19 +1,17 @@
-# encoding:utf-8
-##
-# 实现批量修改文件夹下说有文件的名称，循环所有的文件夹
-# 
-##
+#!/usr/bin/env python3
+# -*-coding:utf-8-*-
 import os,re
 import sys
-
+from thtml.cfg import title,endd,title1,title2
+import datetime as dt
+import urllib.parse
 def write_file(path,r):
     #if 'win'in 
     f=open(path,'a',encoding='utf8')
     f.write(r)
     f.close()
     return
-import datetime as dt
-import urllib.parse
+
 
 date=dt.datetime.strftime(dt.datetime.today(),"%Y-%m-%d %a %H:%M")
 
@@ -43,14 +41,23 @@ titles='''
 #+TAGS: computer(c) nocomputer(n) either(e)
 #+TAGS: immediately(i) wait(w) action(a)
 '''
-def delet_file(pf):
-    for (pf,dirs,files) in os.walk(pf):
-        for old in files:
-            if '_content.txt' in os.path.split(old)[1]:
-                rmfile=os.path.join(pf,old)
-                os.remove(rmfile)
-
-# 读取目录下的文件,形成org文件
+# ######################################
+#读取目录下的文件,形成org文件
+pp='<p style="word-spacing:10px;line-height:1.5">&emsp;&emsp;%s</p>\n'
+ft='''\n<link rel="stylesheet" type="text/css" href="%s" />'''
+def getcsspath():
+    if sys.platform.startswith('win'):
+        if os.getcwd() in ['J:\\python']:
+            p='packages/thtml/css/worg.css'
+        else:
+            p=os.path.abspath('J:/python/packages/thtml/css/worg.css')
+    elif sys.platform in ['linux']:
+        if os.getcwd() in ['/media/chen/Davis/python']:
+            p='packages/thtml/css/worg.css'
+        else:
+            p=os.path.abspath('/media/chen/Davis/python/packages/thtml/css/worg.css')
+    return p
+##############################################
 def Topyorg(pf):
     #global titles
     pfname=pf.replace('/','')
@@ -76,7 +83,6 @@ def Topyorg(pf):
             #"""
             for old in files:
                 files1=os.path.splitext(old)
-                #if (files1[1] not in ['.tmp','.tex','.bat','.el','.sh','.lnk','.ini','.py','.org','.gss','._gs','.gsl','.cls'])and  (files1[0] not in ['Thumbs']) and (re.match(r'^[(\~\$)|(\~)]',files[0]) is None) :
                 #过滤临时文件
                 if (files1[1] not in ['.tmp','.tex','.bat','.el','.sh','.lnk','.ini','.py','.org','.gss','._gs','.gsl','.cls'])and  (files1[0] not in ['Thumbs']) and (files[0].startswith('~') is False) :
                     filename=files1[0]
@@ -89,8 +95,55 @@ def Topyorg(pf):
                     except Exception as e:
                         print(e)
     return
-
+############################################################
 def Topyhtml(pf):
+    pfname=pf.replace('/','')
+    #print(pfname)
+    htmlf=pfname+'_content.html'
+    p=getcsspath()
+    ll=title+'\n'+title1+ft%p+title2+'\n'
+    if os.path.exists(htmlf):
+        os.remove(htmlf)
+    with open(htmlf,'w',encoding='utf8') as f:
+        f.write(ll)
+        f.write('<div id="content"> \n')
+        f.write('<h1 class="title">%s</h1>\n<ul class="org-ul">\n'%pfname)
+        f.flush()
+    if os.path.isdir(pf):
+        if pf.endswith('/'):
+            pf=pf[:-1]
+
+        for root,dirs,files in os.walk(pf):
+            rname=os.path.basename(root)
+            dline= '\n<li>- d <a href=%s>%s</a> \n</li>\n'%(root,rname)
+            try:
+                if not rname.startswith('.'):
+                    if not rname.startswith('_'):
+                        write_file(htmlf,dline)
+                        #print(dline)
+                        write_file(htmlf,'<ul class="org-ul">')
+            except Exception as e:
+                print(e)
+            for old in files:
+                files1=os.path.splitext(old)
+                #过滤临时文件
+                if (files1[1] not in ['.log','.tmp','.tex','.bat','.el','.sh','.lnk','.ini','.py','.org','.gss','._gs','.gsl','.cls','.pyc'])and (files1[0].startswith('~') is False) and (files1[0].startswith('#') is False):
+                    filename=files1[0]
+                    #fpath=root+'\\'+old
+                    fpath=os.path.join(root,old)
+                    fpath=urllib.parse.quote(fpath)
+                    line='<li><code>[&#xa0;]</code> <a href=%s>%s</a>\n</li>'%(fpath,filename)
+                    try:
+                        write_file(htmlf,line)
+                        #print(line)
+                    except Exception as e:
+                        print(e)
+            write_file(htmlf,r"</ul>"+'\n')
+    write_file(htmlf,'</div>\n</body>\n</html>')
+            
+    return    
+################################################3
+def Topyhtmlv0(pf):
     pfname=pf.replace('/','')
     htmlf=pfname+'_content.html'
     if os.path.exists(htmlf):
@@ -137,7 +190,6 @@ def Topyhtml(pf):
     write_file(htmlf,'</div>\n</body>\n</html>')
             
     return    
-
 if __name__=="__main__":
     pf=sys.argv[1]
     #Topyorg(pf)

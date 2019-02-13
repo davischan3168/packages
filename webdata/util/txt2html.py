@@ -11,8 +11,10 @@ cstr=['，','。','？','！','；','：']
 
 div_style=r'<div style="word-spacing:5px;line-height:1.5">'
 htmlcode='''<html>
-<meta http-equiv="Content-Type" content="text/html"; charset="%s" />
-<body bgcolor="#C7EDF0">'''
+<meta http-equiv="Content-Type" content="text/html"; charset="utf8" />
+<body bgcolor="#C7EDF0">
+<title> My Html File</title>'''
+
 if sys.platform.startswith('win'):
     htmlcode1=htmlcode%'utf8'
 elif sys.platform in ['linux']:
@@ -163,12 +165,12 @@ def txt2htmlv1(txtName,index=True):
         os.remove(htmlName)    
     try:
         html=open(htmlName,'a',encoding='utf8')
-        html.write(htmlcode1)
+        html.write(htmlcode)
         html.write(tb.read())
         html.write(ctt.read())
     except:
         html=open(htmlName,'a',encoding='gbk')
-        html.write(htmlcode1)
+        html.write(htmlcode)
         html.write(tb.read())
         html.write(ctt.read())
         
@@ -319,12 +321,12 @@ def txt2html_inonefile(txtName,index=True):
         os.remove(htmlName)
     try:
         html=open(htmlName,'w',encoding='utf8')
-        html.write(htmlcode1)
+        html.write(htmlcode)
         html.write(tb.read())
         html.write(ctt.read())
     except:
         html=open(htmlName,'w',encoding='gbk')
-        html.write(htmlcode1)
+        html.write(htmlcode)
         html.write(tb.read())
         html.write(ctt.read())
 
