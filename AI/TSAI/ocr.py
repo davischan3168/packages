@@ -68,24 +68,32 @@ def TS_ocr(plus_item):
 
 def TS_ocr_text(plus_item):
     text=[]
-    dd=ocr(plus_item)
+    dd=TS_ocr(plus_item)
     for i in dd['data']['item_list']:
         text.append(i['itemstring'])
 
     return text
 
-def TS_ocr_text_dir(fpath):
+def TS_ocr_text_dir(fpath,textp='outx.txt'):
     dtext=[]
+    
+    ff=open(textp,'a',encoding='utf8')
     for root,dirs,files in os.walk(fpath):
         for f in files:
             #print(f)
             if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
                 f=os.path.abspath(root+'/'+f)
                 #f=str(root+'/'+f)
-                print(f)
-                dtext.append('\n'.join(ocr_text(f)))
-
-    return dtext
+                try:
+                    ddtext='\n'.join(TS_ocr_text(f))
+                    ff.write(ddtext)
+                    ff.flush()
+                    print(f)
+                    os.remove(f)
+                    #dtext.append('\n'.join(TS_ocr_text(f)))
+                except Exception as e:
+                    pass
+    return #dtext
                 
             
 
@@ -98,5 +106,5 @@ if __name__ == '__main__':
     #dd=ocr(sys.argv[1])
     #for i in dd['data']['item_list']:
     #    text.append(i['itemstring'])
-    text=ocr_text_dir(sys.argv[1])
-    print(text)        
+    text=TS_ocr_text_dir(sys.argv[1])
+    #print(text)        

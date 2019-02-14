@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*-coding:utf-8-*-
 
+__all__=['Ch2NumArab','ArabNum2Ch','Arab2NumberCh','ch2digits','ChNumToArab']
 
 chinese_number_dict = { '零':0,'一':1,'两':2, '二':2, '三':3, '四':4,'五':5,  '六':6,'七':7, '八':8, '九':9, '十':10,'百':100,'千':1000,  '万':10000, "亿":100000000}
 not_in_decimal = "十百千万亿点"
 
-def ch2num(chstr):
+def Ch2NumArab(chstr):
     """
     将汉字转化为数字:str-->float
     """
@@ -113,7 +114,7 @@ def _to_ch4(num):
      
 def _to_ch8(num):
   assert(num < _S8)
-  to4 = _to_chinese4
+  to4 = _to_ch4
   if num < _S4:
     return to4(num)
   else:
@@ -140,7 +141,7 @@ def _to_ch16(num):
     else:
       return to8(high) + u'亿' + to8(low)
      
-def to_ch(num):
+def ArabNum2Ch(num):
   """num:输入的类型为int
   """
   if type(num) != int:
@@ -169,7 +170,7 @@ numStr=u'零壹贰叁肆伍陆柒捌玖'
 numDic=dict(zip(numArab,numStr))
 
 
-def ChnNumber(s):
+def Arab2NumberCh(s):
     """
     输入字符型的阿拉伯数字或直接输入阿拉伯数字。
     ----------------------------------------
@@ -287,7 +288,10 @@ def ChNumToArab(oriStr):
 
     return aProStr
 
+
+
 if __name__ == "__main__":
+    """
     print(ch2num("一万三千零二十"))
     print(ch2num("一万三千两百二十"))
     print(ch2num("两百五十三"))
@@ -298,5 +302,5 @@ if __name__ == "__main__":
     print(ch2num("百"))
     print(ch2num("十二点五"))
     print(ch2num("三点一四一五九二六"))
-    print(ch2num("三千五百亿一千三百二十五万四千五百六十九点五八三四三九二九一"))
-
+    print(ch2num("三千五百亿一千三百二十五万四千五百六十九点五八三四三九二九一"))"""
+    pass
