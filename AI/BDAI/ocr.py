@@ -123,10 +123,46 @@ def BD_table_orc(path,mtype='excel'):
         return s['forms'][0]['body']
 
         
-    
+def BD_ocr1By1dir(dirname):
+    for root,dirs,files in os.walk(dirname):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
+                f=os.path.abspath(root+'/'+f)
+                try:
+                    print(f)
+                    op=os.path.splitext(f)[0]+'.txt'
+                    if not os.path.exists(op):
+                        d=BD_jsonTtext(f)
+                        if len(d.strip())>0:
+                            with open(op,'w',encoding='utf8') as ff:
+                                ff.write(d)
+                            os.remove(f)
+                            print('remove file %s ...'%f)
+                    time.sleep(0.5)
+                except Exception as e:
+                    pass
+    return
+def BD_ocrAllIn1dir(dirname):
+    Al='output_allinone.txt'
+    ff=open(Al,'a',encoding='utf8')
+    for root,dirs,files in os.walk(dirname):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
+                f=os.path.abspath(root+'/'+f)
+                try:
+                    d=BD_jsonTtext(f)
+                    print(f)
+                    if len(d.strip())>0:
+                        ff.write(d+'\n\n')
+                        ff.write('----- %s ----\n\n'%f)
+                        ff.flush()                        
+                        os.remove(f)
+                        print('remove file %s ...'%f)
+                    time.sleep(0.5)
+                except Exception as e:
+                    pass
+    ff.close()
+    return    
 
 if __name__=="__main__":
-    text=jsonTtext(sys.argv[1])
-    with open('text.txt','w') as f:
-        f.write(text)
-        
+    text=BD_ocr1By1dir(sys.argv[1])        

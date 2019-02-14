@@ -74,10 +74,10 @@ def TS_ocr_text(plus_item):
 
     return text
 
-def TS_ocr_text_dir(fpath,textp='outx.txt'):
-    dtext=[]
+def TS_ocr_text_dir(fpath):
+    #dtext=[]
     
-    ff=open(textp,'a',encoding='utf8')
+    #ff=open(textp,'a',encoding='utf8')
     for root,dirs,files in os.walk(fpath):
         for f in files:
             #print(f)
@@ -85,18 +85,65 @@ def TS_ocr_text_dir(fpath,textp='outx.txt'):
                 f=os.path.abspath(root+'/'+f)
                 #f=str(root+'/'+f)
                 try:
-                    ddtext='\n'.join(TS_ocr_text(f))
-                    ff.write(ddtext)
-                    ff.flush()
+                    #ddtext='\n'.join(TS_ocr_text(f))
+                    #ff.write(ddtext)
+                    #ff.flush()
                     print(f)
-                    os.remove(f)
+                    d=TS_ocr1By1(f)
+                    if len(d.strip())>0:
+                        os.remove(f)
+                        print('remove file %s ...'%f)
                     #dtext.append('\n'.join(TS_ocr_text(f)))
+                    time.sleep(0.5)
                 except Exception as e:
                     pass
     return #dtext
                 
-            
+def TS_ocr1By1(path):
+    text='\n'.join(TS_ocr_text(path))
+    #print(text)
+    fpath=os.path.abspath(path)
+    name=os.path.splitext(path)[0]+'.txt'
+    with open(name,'w',encoding='utf8') as f:
+        f.write(text)
+    return text
 
+def TS_ocr1By1dir(dirname):
+    for root,dirs,files in os.walk(dirname):
+            if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
+                f=os.path.abspath(root+'/'+f)
+                try:
+                    print(f)
+                    d=TS_ocr1By1(f)
+                    if len(d.strip())>0:
+                        os.remove(f)
+                        print('remove file %s ...'%f)
+                    time.sleep(0.5)
+                except Exception as e:
+                    pass
+    return
+def TS_ocrAllInOnedir(dirname):
+    Al='output_allinone.txt'
+    ff=open(Al,'a',encoding='utf8')
+    for root,dirs,files in os.walk(dirname):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
+                f=os.path.abspath(root+'/'+f)
+                try:
+                    ddtext='\n'.join(TS_ocr_text(f))
+                    print(f)
+                    d=TS_ocr1By1(f)
+                    if len(d.strip())>0:
+                        ff.write(ddtext+'\n\n')
+                        ff.write('-------------------- %s ----------------\n\n'%f)
+                        ff.flush()                        
+                        os.remove(f)
+                        print('remove file %s ...'%f)
+                    time.sleep(0.5)
+                except Exception as e:
+                    pass
+    return
+    
   
   
 if __name__ == '__main__':    
