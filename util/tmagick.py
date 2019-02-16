@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # -*-coding:utf-8-*-
 import sys
+import os
 import PyPDF2
-import PythonMagick
 import ghostscript
 from PyPDF2 import PdfFileReader, PdfFileWriter
+if sys.platform.startswith('win'):
+    import PythonMagick
+elif sys.platform in ['linux']:
+    import pgmagick as PythonMagick
 
 
-
-def Pdf2Jpeg(inputf,outdir,ds=512,mtype='jpeg'):
+def Pdf2Jpeg(inputf,outdir=None,start='',end='',ds=256,mtype='jpeg'):
     """
     :param i_file: (str) input pdf file (eg: "/home/file.pdf")
     :param o_dire: (str) output image directory (eg: "/home/")
@@ -18,21 +21,35 @@ def Pdf2Jpeg(inputf,outdir,ds=512,mtype='jpeg'):
     :return: splited PNG image file
     将pdf文件转化为jpg的图片文件
     """
-    #flag=True
-    #ds=str(ds)
     pdf_i = PyPDF2.PdfFileReader(open(inputf, "rb"))
     pages=pdf_i.getNumPages()
+    lp=len(str(pages))
+    oput=os.path.splitext(os.path.abspath(inputf))[0]
+    if outdir is None:
+        outdir=oput
     print('Totally get ***{0:^4}*** pages from "{1}", playpdf start......'.format(pages,inputf))
+
+    if start=='':
+        start=0
+    else:
+        start=int(start)
+    if end=='':
+        end=pages
+    else:
+        end=int(end)
+        
     try:
         image=PythonMagick.Image()
         image.density(str(ds))
-        for i in range(pages):
-            #image = PythonMagick.Image(inputf + '[' + str(i) + ']')
-            #image.density(str(ds))
-            image.read(inputf + '[' + str(i) + ']')
-            image.magick(mtype)
-            image.write(outdir + str(i + 1) + ".jpeg")
-            print("{0:>5} page OK......".format(i + 1))
+        for i in range(start,end):
+            pagepath=outdir +'第'+ str(i + 1).zfill(lp)+'页' + ".jpeg"
+            if not os.path.exists(pagepath):
+                #image = PythonMagick.Image(inputf + '[' + str(i) + ']')
+                #image.density(str(ds))
+                image.read(inputf + '[' + str(i) + ']')
+                image.magick(mtype)
+                image.write(outdir +'_页面_'+ str(i + 1).zfill(lp)+ ".jpeg")
+                print("{0:>5} page OK......".format(i + 1))
     
     except Exception as e:
         print(e)
