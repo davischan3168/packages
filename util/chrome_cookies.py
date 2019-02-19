@@ -15,6 +15,25 @@ import urllib.parse
 from typing import Any, Dict, Iterator, Union  # noqa
 import fnmatch
 import keyring
+from http import cookiejar
+from urllib import request
+from urllib3.exceptions import InsecureRequestWarning
+import chardet
+# 获取cookie方法,通过http.cookiejar包
+def GetCookie(url):
+    # 声明一个CookieJar对象实例来保存cookie
+    cookie = cookiejar.CookieJar()
+    # 利用urllib.request库的HTTPCookieProcessor对象来创建cookie处理器,也就CookieHandler
+    handler = request.HTTPCookieProcessor(cookie)
+    # 通过CookieHandler创建opener
+    opener = request.build_opener(handler)
+    opener.addheaders = [
+        ('User-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
+                       ' Chrome/63.0.3239.108 Safari/537.36')]
+    response = opener.open(url)
+    opener.close()
+    # 打印cookie信息
+    return cookie
 
 def firefox_cookies(url):
     """
@@ -99,19 +118,19 @@ def chrome_cookieswin(url):
     except sqlite3.OperationalError:
         print("Unable to connect to cookie_file at: {}\n".format(cookie_file))
 
-"""
-    salt is b'saltysalt'
-    key length is 16
-    iv is 16 bytes of space b' ' * 16
-    on Mac OSX:
-    password is in keychain under Chrome Safe Storage
-    I use the excellent keyring package to get the password
-    You could also use bash: security find-generic-password -w -s "Chrome Safe Storage"
-    number of iterations is 1003
-    on Linux:
-    password is peanuts
-    number of iterations is 1
-"""
+        """
+        salt is b'saltysalt'
+        key length is 16
+        iv is 16 bytes of space b' ' * 16
+        on Mac OSX:
+        password is in keychain under Chrome Safe Storage
+        I use the excellent keyring package to get the password
+        You could also use bash: security find-generic-password -w -s "Chrome Safe Storage"
+        number of iterations is 1003
+        on Linux:
+        password is peanuts
+        number of iterations is 1
+        """
 
 #def clean(decrypted: bytes) -> str:
 def clean(decrypted):    
@@ -128,14 +147,17 @@ def clean(decrypted):
     """
     last = decrypted[-1]
     if isinstance(last, int):
-        return decrypted[:-last].decode('utf8')
-        #return decrypted[:-last]
+        try:
+            return decrypted[:-last].decode('utf8')
+        except Exception as e:
+            print(e,'\n',decrypted[:-last])
+            d=chardet.detect(decrypted[:-last])
+            return decrypted[:-last].decode(d['encoding'])
     return decrypted[:-ord(last)].decode('utf8')
     #return decrypted[:-ord(last)]
 
 
 #def chrome_decrypt(encrypted_value: bytes, key: bytes, init_vector: bytes) \
-#        -> str:
 def chrome_decrypt(encrypted_value, key, init_vector):        
     """Decrypt Chrome/Chromium's encrypted cookies.
 
@@ -247,10 +269,7 @@ def get_linux_config(browser):
 #        url: str,
 #        cookie_file: str = None,
 #        browser: str = "Chrome"):
-def chrome_cookies(
-        url,
-        cookie_file= None,
-        browser = "Chrome"):    
+def chrome_cookies(url,cookie_file= None,browser = "Chrome"):    
     """Retrieve cookies from Chrome/Chromium on OSX or Linux.
 
     Args:
@@ -353,7 +372,8 @@ def FetchCookiesFB(url,browser='Chrome'):
         cookies=firefox_cookies(url)
         
     else:
-        raise ValueError("Unkown Browser ......")
+        cookies=GetCookie(url)
+        #raise ValueError("Unkown Browser ......")
 
     return cookies
 
@@ -363,6 +383,6 @@ def FetchCookiesFB(url,browser='Chrome'):
             
 
 if __name__=="__main__":
-    #d=chrome_cookies('http://www.xueqiu.com')
+    d=chrome_cookies('http://www.xueqiu.com')
     pass
     

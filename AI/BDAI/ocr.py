@@ -7,6 +7,8 @@ import requests
 import sys
 import os
 
+__all__=['BD_jsonTtext','BD_ocr1By1dir','BD_ocrAllIn1dir','BD_table_orc']
+
 """ 你的 APPID AK SK """
 #http://ai.baidu.com/docs#/OCR-Python-SDK/top
 APP_ID = '10947557'
@@ -126,10 +128,12 @@ def BD_table_orc(path,mtype='excel'):
 def BD_ocr1By1dir(dirname):
     for root,dirs,files in os.walk(dirname):
         for f in files:
-            if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
+            #print(os.path.splitext(f)[1])
+            if os.path.splitext(f)[1] in ['.jpg','.png','.jpeg']:
+                print(f)
                 f=os.path.abspath(root+'/'+f)
                 try:
-                    print(f)
+                    #print(f)
                     op=os.path.splitext(f)[0]+'.txt'
                     if not os.path.exists(op):
                         d=BD_jsonTtext(f)
@@ -147,7 +151,7 @@ def BD_ocrAllIn1dir(dirname):
     ff=open(Al,'a',encoding='utf8')
     for root,dirs,files in os.walk(dirname):
         for f in files:
-            if os.path.splitext(f)[1] in ['.jpg','.png''.jpeg']:
+            if os.path.splitext(f)[1] in ['.jpg','.png','.jpeg']:
                 f=os.path.abspath(root+'/'+f)
                 try:
                     d=BD_jsonTtext(f)

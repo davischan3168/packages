@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*-coding:utf-8-*-
 
-from AI.BDAI.ocr import (BD_picTword,BD_jsonTtext,BD_Pic_Text_dir,BD_table_orc)
+from AI.BDAI.ocr import (BD_jsonTtext,BD_ocrAllIn1dir,BD_ocr1By1dir,BD_table_orc)
 from AI.BDAI.tts import (BD_text2audio,BD_audio2text,BD_textTaudio,BD_audio2textAll)
 #from AI.BDAI.translate import BD_trans
 ################################

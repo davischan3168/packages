@@ -31,12 +31,15 @@ def Pdf2Jpeg(inputf,outdir=None,start='',end='',ds=256,mtype='jpeg'):
 
     if start=='':
         start=0
+    elif int(start)>0:
+        start=int(start)-1
     else:
-        start=int(start)
+        #start=int(start)
+        pass
     if end=='':
         end=pages
     else:
-        end=int(end)
+        end=int(end)+1
         
     try:
         image=PythonMagick.Image()

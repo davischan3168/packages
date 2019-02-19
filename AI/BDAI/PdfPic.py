@@ -5,11 +5,14 @@
 import sys
 import os
 import PyPDF2
-import PythonMagick
+if sys.platform.startswith('win'):
+    import PythonMagick
+elif sys.platform in ['linux']:
+    import pgmagick as PythonMagick
 import ghostscript
 from webdata.AI.ocr import jsonTtext
 
-def Pdf2Pic(pdffilename,ds=2048,start=0,end=None):
+def Pdf2Pic(pdffilename,ds=128,start=0,end=None):
     """
     param pdffilename: (str) input pdf file (eg: "/home/file.pdf") 
     param ds: (int) set ds = 1024 ~= 1MB output under my test
@@ -32,9 +35,12 @@ def Pdf2Pic(pdffilename,ds=2048,start=0,end=None):
         
     print('Converting %d pages.' % npage)
     atext=[]
+    im=PythonMagick.Image()
+    im.density(str(ds))
     for p in range(start,end):
-        im = PythonMagick.Image(abspf + '[' + str(p) +']')
-        im.density(str(ds))
+        #im = PythonMagick.Image(abspf + '[' + str(p) +']')
+        #im.density(str(ds))
+        im.read(abspf + '[' + str(p) +']')
         im.magick("PNG")
         path='file_out-' + str(p)+ '.png'
         im.write(path)
