@@ -3,10 +3,10 @@
 import argparse
 import random
 import time
-from collections import Iterable
+from collections.abc import Iterable
 
 import requests
-import simpleaudio as sa
+#import simpleaudio as sa
 from pydub import AudioSegment
 from contextlib import contextmanager
 from os import chdir, getcwd, listdir, remove, makedirs
@@ -38,7 +38,8 @@ def format_transfer(name, ori_format, target_format, remove_ori=False):
 def download_audio(words, target_format='wav'):
     for i,word in enumerate(words):
         r = requests.get(url='http://dict.youdao.com/dictvoice?audio=' + word +'&type=2',stream=True)
-        fpath='audio/'+str(i).zfill(2) + '.mp3'
+        
+        fpath='audio/%s_'%word.replace(' ','')+str(i).zfill(2) + '.mp3'
         #print(i,word)
         with open(fpath, 'wb+') as f:
             for chunk in r.iter_content(chunk_size=128):
@@ -59,4 +60,4 @@ def play_audio(audio, wait=True, sleep=0):
 
 
 if __name__ == '__main__':
-    #pass
+    pass

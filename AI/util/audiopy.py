@@ -6,8 +6,8 @@ import time
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 import pydub
-
-def audios_to_one(paths,sln=5):
+##########################################
+def audios_to_one(paths,sln=3.5,repeat=1):
     """
     paths:files to be combine together;paths or file.
     sln:产生一个持续时间为sln seconds的无声AudioSegment对象
@@ -38,9 +38,16 @@ def audios_to_one(paths,sln=5):
     if len(sounds)>1:
         mysilence = AudioSegment.silent(duration=sln*1000)
         playlist=AudioSegment.empty()
-        for sound in sounds:
-            playlist += sound
-            playlist += mysilence
+        if repeat==1:
+            for sound in sounds:
+                playlist += sound
+                playlist += mysilence
+        elif repeat>1:
+            for sound in sounds:
+                for _ in range(repeat):
+                    #print(_)
+                    playlist += sound
+                    playlist += mysilence
 
     
         #mtype=os.path.splitext(output)
@@ -49,7 +56,7 @@ def audios_to_one(paths,sln=5):
     else:
         print("Only one file,not to be combine the files")
     return
-
+#################################################
 def audio_split(sgm,min_sl=300,sth=-40):
     """
     sgm:AudioSegment 对象
@@ -61,7 +68,7 @@ def audio_split(sgm,min_sl=300,sth=-40):
     """
     chunks=split_on_silence(sgm,min_silence_len=min_sl,silence_thresh=sth)
     return chunks
-
+####################################################
 def audio_split_combine(fpath,start='00:00:00',end='00:00:02',min_sl=300,sth=-40,duration=4):
     """
     先对语音进行分割，然后再将分割后语言按一定的时间间隔进行重新拼接，
@@ -125,7 +132,7 @@ def audio_split_combine(fpath,start='00:00:00',end='00:00:02',min_sl=300,sth=-40
     pl.export('audio_split_%s.wav'%str(int(time.time())),format='wav')
           
     return
-
+##################################################
 def new_from_audio(fpath,start='00:00:00',end='00:00:20'):
     """
     fpath:is audio file or AudioSegment file.
@@ -177,7 +184,7 @@ def new_from_audio(fpath,start='00:00:00',end='00:00:20'):
     audio=Ag[start:end]
     audio.export('audio_split_%s.wav'%str(int(time.time())),format='wav')
     return
-
+#########################################
 def _wav_pcm(ifile):
     """
     ifile:为输入的wav 文件。
@@ -187,7 +194,7 @@ def _wav_pcm(ifile):
     cmd='ffmpeg -y  -i %s  -acodec pcm_s16le -f s16le -ac 1 -ar 16000 %s'%(ifile,ofile)
     os.system(cmd)
     return ofile
-
+###################################
 def _mp3_pcm(ifile):
     """
     ifile:为输入的wav 文件。
@@ -198,7 +205,7 @@ def _mp3_pcm(ifile):
     os.system(cmd)
     #print(ofile)
     return ofile
-
+####################################
 def _wav_44kT16k(ifile):
     """
     ifile:为输入的wav 文件。
@@ -208,7 +215,7 @@ def _wav_44kT16k(ifile):
     cmd='ffmpeg -y  -f s16le -ac 1 -ar 44100 -i %s  -acodec pcm_s16le -f s16le -ac 1 -ar 16000 %s'%(ifile,ofile) 
     os.system(cmd)    
     return ofile
-
+#####################################
 def audio2pcm(fpath):
     """
     将mp3、wav两种音频文件转化为pcm文件，为使用百度的语音识别做好准备
@@ -220,9 +227,7 @@ def audio2pcm(fpath):
     if tm == 'mp3':
         ofile=_mp3_pcm(fpath)
         return ofile
-
-    
-    
+######################################################    
 def audio2list(fpath,duration=59,pcm=False):
     """
     http://ai.baidu.com/docs#/ASR-Tool-convert/top
@@ -262,7 +267,7 @@ def audio2list(fpath,duration=59,pcm=False):
         else:
             files.append(path1)
     return files
-
+##################################################
 def chunks_n(sgm,duration=3,ntotal=40,repeat=2):
     chunks=audio_split(sgm)
     s1=AudioSegment.silent(duration*1000)
