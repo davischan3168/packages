@@ -13,11 +13,8 @@ div_style=r'<div style="word-spacing:5px;line-height:1.5">'
 htmlcode='''<html>
 <meta http-equiv="Content-Type" content="text/html; charset=%s" />
 <body bgcolor="#C7EDF0">
-<title> My Html File</title>'''
-if sys.platform.startswith('win'):
-    htmlcode1=htmlcode%'utf8'
-elif sys.platform in ['linux']:
-    htmlcode1=htmlcode%'utf8'
+<title> %s </title>'''
+
 def htmlWrapper(content,tag,attr):
     return "<"+tag+" "+attr+">"+content+""
 
@@ -31,6 +28,21 @@ def htmHighLight(line):
                 line = keywordMatcher.sub(fontColorWrapper(i,'cf0000'), line)
 
         return line
+def _mytitle(txtName):
+    if os.path.isfile(txtName):
+        mytitle=os.path.basename(os.path.splitext(txtName)[0])
+    elif os.path.isdir(txtName):
+        mytitle=os.path.basename(txtName)
+    else:
+        mytitle='My Html File'
+    return mytitle
+def _hh(txtName)
+    if sys.platform.startswith('win'):
+        htmlcode1=htmlcode%('utf8',_mytitle(txtName))
+    elif sys.platform in ['linux']:
+        htmlcode1=htmlcode%('utf8',_mytitle(txtName))
+    return htmlcode1
+    
 ##########################################3
 def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
@@ -41,7 +53,7 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
     在python运行目录下生产一份html文件。
     """
     files=[]
-    
+
     if isinstance(txtName,str):
         files.append(txtName)
     elif isinstance(txtName,list):
@@ -157,6 +169,7 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
 
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
+    htmlcode1=_hh(txtName)
     if os.path.exists(htmlName):
         os.remove(htmlName)    
     try:
@@ -306,7 +319,7 @@ def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.comp
 
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
-
+    htmlcode1=_hh(txtName)
     if os.path.exists(htmlName):
         os.remove(htmlName)
     try:

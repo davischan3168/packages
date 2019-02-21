@@ -2,12 +2,14 @@
 # -*-coding:utf-8-*-
 import os
 import sys
+import time
 from PIL import Image
 from reportlab.lib.pagesizes import A4, landscape,portrait
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch,cm
+from AI.BDAI.ocr import BD_jsonTtext
 
-def splitimage2A4(src, dstpath=''):
+def imgLongsplitimage2A4(src, dstpath=''):
     """
     将一个长图切割成A4大小的数张图
     """
@@ -41,13 +43,13 @@ def splitimage2A4(src, dstpath=''):
     return img_urls
 
 # 零散，大小一致图片，存储为pdf
-def imgtopdf(input_paths, outputpath=''):
+def imgsto1pdf(input_paths, outputpath=''):
     """将数张大小一致的图存储为pdf文件"""
     index=0
     # 取一个大小
     if outputpath=='':
         import datetime
-        outputpath='combinefiles_%s.pdf'%datetime.datetime.strftime(datetime.datetime.today(),'%Y-%m-%d-%H:%M:%S')
+        outputpath='combinefiles_%s.pdf'%datetime.datetime.strftime(datetime.datetime.today(),'%Y-%m-%d-%H_%M_%S')
     (maxw, maxh) = Image.open(input_paths[0]).size
     c = canvas.Canvas(outputpath, pagesize=portrait((maxw, maxh)))
     for ont_path in input_paths :
@@ -57,20 +59,27 @@ def imgtopdf(input_paths, outputpath=''):
     c.save()
     return
 
-def imgsTpdf(longPicpath):
+def imgLongplitT1pdf(longPicpath):
     """将一张长图切割为A4大小的数张图，并存储为一pdf文件"""
-    d=splitimage(longPicpath)
-    d.pop(-1)
-    imgtopdf(d)
+    out=os.path.splitext(os.path.abspath(longPicpath))[0]+'.pdf'
+    d=imgLongsplitimage2A4(longPicpath)
+    s=d.pop(-1)
+    
+    imgsto1pdf(d,outputpath=out)
+    for i in d:
+        os.remove(i)
+    os.remove(s)
     return
 
-def imgtopdf_signal(input_path, outputpath=''):
+def imgLongto1pdf(input_path, outputpath=''):
     """将一张长图直接转为一个pd文件f"""
     #index=0
     # 取一个大小
+    out=os.path.splitext(os.path.abspath(input_path))[0]+'.pdf'    
     if outputpath=='':
-        import datetime
-        outputpath='combinefiles_%s.pdf'%datetime.datetime.strftime(datetime.datetime.today(),'%Y-%m-%d-%H:%M:%S')
+        #import datetime
+        outputpath=out
+        #outputpath='combinefiles_%s.pdf'%datetime.datetime.strftime(datetime.datetime.today(),'%Y-%m-%d-%H:%M:%S')
     (maxw, maxh) = Image.open(input_path).size
     c = canvas.Canvas(outputpath, pagesize=portrait((maxw, maxh)))
     #for ont_path in input_paths :
@@ -78,6 +87,25 @@ def imgtopdf_signal(input_path, outputpath=''):
     c.showPage()
     #index=index+1
     c.save()
+    return
+
+def imgLongtoText(longPicpath):
+    """将一张长图切割为A4大小的数张图，并存储为一txt文件"""
+    out=os.path.splitext(os.path.abspath(longPicpath))[0]+'.txt'
+    d=imgLongsplitimage2A4(longPicpath)
+    #s=d.pop(-1)
+
+    
+    #imgsto1pdf(d,outputpath=out)
+    f=open(out,'w',encoding='utf8')
+    for i in d:
+        d=BD_jsonTtext(i)
+        #print(i)
+        f.write(d)
+        time.sleep(2)
+        os.remove(i)
+    #os.remove(s)
+    f.close()
     return
 
 

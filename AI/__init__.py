@@ -19,6 +19,6 @@ from AI.KDXF.iat import (KDXF_aitFpcm,KDXF_aitFall)
 from AI.KDXF.ocr import KDXF_ocr_general
 #from AI.KDXF.ocr_handwr import KDXF_ocr_handwrite
 ################################3
-from AI.util.tpdf import (splitimage2A4,imgtopdf,imgsTpdf,imgtopdf_signal)
+from AI.util.tpdf import (imgLongsplitimage2A4,imgsto1pdf,imgLongplitT1pdf,imgLongto1pdf,imgLongtoText)
 from AI.util.textsplit import (BD_text_split,TS_text_split)
 from AI.util.audiopy import (new_from_audio,audio_split_combine,audio_split,audios_to_one)

@@ -4,7 +4,12 @@
 #from __future__ import division
 from io import StringIO
 import math
-from wand.image import Image # 这里我起了个别名
+import sys
+if sys.platform.startswith('win'):
+    from PythonMagick import Image
+elif sys.platform in ['linux']:
+    from pgmagick import Image
+#from wand.image import Image # 这里我起了个别名
 from PIL import Image as PImage
 # 百度OCR最大长度
 bai_du_ocr_max = 4096
@@ -69,6 +74,7 @@ def convert(file_name, target_width=1500):
                     # 测试的时候可以打开
                     # paste_image.show()
     except Exception as e:
+        print(e)
         result = False
     return result
 
