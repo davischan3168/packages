@@ -29,14 +29,17 @@ def htmHighLight(line):
 
         return line
 def _mytitle(txtName):
-    if os.path.isfile(txtName):
+
+    if isinstance(txtName,list):
+        mytitle='My Html File'
+    elif os.path.isfile(txtName):
         mytitle=os.path.basename(os.path.splitext(txtName)[0])
     elif os.path.isdir(txtName):
         mytitle=os.path.basename(txtName)
     else:
         mytitle='My Html File'
     return mytitle
-def _hh(txtName)
+def _hh(txtName):
     if sys.platform.startswith('win'):
         htmlcode1=htmlcode%('utf8',_mytitle(txtName))
     elif sys.platform in ['linux']:
@@ -53,6 +56,7 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
     在python运行目录下生产一份html文件。
     """
     files=[]
+    htmlcode1=_hh(txtName)
 
     if isinstance(txtName,str):
         files.append(txtName)
@@ -169,7 +173,7 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
 
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
-    htmlcode1=_hh(txtName)
+    
     if os.path.exists(htmlName):
         os.remove(htmlName)    
     try:
@@ -201,6 +205,7 @@ def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.comp
     在txtName文件目录下生产一html文件。
     """
     files=[]
+    htmlcode1=_hh(txtName)
     if os.path.isfile(txtName):
         path=os.path.abspath(txtName)
         files.append(path)
@@ -319,7 +324,6 @@ def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.comp
 
     tb=open(table,'r',encoding='utf8')
     ctt=open(content,'r',encoding='utf8')
-    htmlcode1=_hh(txtName)
     if os.path.exists(htmlName):
         os.remove(htmlName)
     try:
