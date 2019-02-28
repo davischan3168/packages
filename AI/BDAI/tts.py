@@ -107,7 +107,7 @@ def BD_audio2textAll(filePath):
 
     return dicts
 
-def BD_textTaudio(text,vol=15,per=1,spd=3,pit=5,aue=6,path=''):
+def BD_textTaudio(text,vol=15,per=1,spd=3,pit=5,aue=6,path='',pl=False):
     """
     tex:        合成的文本，使用UTF-8编码。小于512个中文字或者英文数字。
                 （文本在百度服务器内转换为GBK后，长度必须小于1024字节）
@@ -134,6 +134,8 @@ def BD_textTaudio(text,vol=15,per=1,spd=3,pit=5,aue=6,path=''):
         })
 
         # 识别正确返回语音二进制 错误则返回dict 参照下面错误码
+        if os.path.exists('audio'):
+            os.mkdir('audio')
         if path=='':
             if aue==3:
                 path='audio/auido_%s.mp3'%(dt.datetime.strftime(dt.datetime.now(),'%Y-%m-%d-%H:%M:%S'))
@@ -144,14 +146,66 @@ def BD_textTaudio(text,vol=15,per=1,spd=3,pit=5,aue=6,path=''):
             #data=base64.b64decode(result)
             if aue==6:
                 audiof=AudioSegment(result)
-                play(audiof)
+                if pl:
+                    play(audiof)
             with open(path, 'wb') as f:
                 f.write(result)
 
-    return result
+    return
+
+def BD_TTSBase(word,vol=15,per=1,spd=3,pit=5,aue=6,path='',pl=False):
+    """
+    word:        合成的文本，使用UTF-8编码。小于512个中文字或者英文数字。
+                （文本在百度服务器内转换为GBK后，长度必须小于1024字节）
+    lan:        固定值zh。语言选择,目前只有中英文混合模式，填写固定值zh
+    spd:	选填	语速，取值0-9，默认为5中语速
+    pit:	选填	音调，取值0-9，默认为5中语调
+    vol:        选填	音量，取值0-15，默认为5中音量
+    per:	选填	发音人选择, 0为普通女声，1为普通男生，
+                        3为情感合成-度逍遥，4为情感合成-度丫丫，默认为普通女声
+    aue	        选填	3为mp3格式(默认)； 4为pcm-16k；5为pcm-8k；6为wav（内容同
+                        pcm-16k）; 
+                        注意aue=4或者6是语音识别要求的格式，但是音频内容不是语音识别要求的自然人发音，所以识别效果会受影响。
+    
+    """
+
+    if not os.path.exists('audio'):
+        os.mkdir('audio')
+    if path=='':
+        if aue==3:
+            path='audio/%s.mp3'%word.strip()
+        elif aue==6:
+            path='audio/%s.wav'%word.strip()
+
+    if not os.path.exists(path):
+        result  = client.synthesis(word, 'zh', 1, {
+            'vol': vol,
+            'spd':spd,
+            'pit':pit,
+            'per':per,
+            'aue':aue
+        
+        })
+
+        # 识别正确返回语音二进制 错误则返回dict 参照下面错误码
+        
+        
+        if not isinstance(result, dict):
+            #data=base64.b64decode(result)
+            if aue==6:
+                audiof=AudioSegment(result)
+                if pl:
+                    play(audiof)
+            with open(path, 'wb') as f:
+                f.write(result)    
+    return
+
+
+
 
 if __name__=="__main__":
     uu='''天接云涛连晓雾，星河欲转千朝舞。仿佛梦魂归帝所。闻天语，殷勤问我归何处。
 我报路长嗟日暮，学诗漫有惊人句。九万里风鹏正举。风休住，蓬舟吹取三山去！'''
-    yu=BD_textTaudio(uu)
+    #yu=BD_textTaudio(uu)
     #os.system('mplayer auido.mp3')
+    pass

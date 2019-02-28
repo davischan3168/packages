@@ -69,8 +69,35 @@ def BD_picTword(filePath):
     #client.basicGeneralUrl(url, options)
     return d
 
-def BD_jsonTtext(filePath):
-    d=BD_picTword(filePath)
+def BD_picTwordAccurate(filePath):    
+    image = get_file_content(filePath)
+
+    """ 调用通用文字识别, 图片参数为本地图片 """
+    #client.basicGeneral(image);
+
+    """ 如果有可选参数 """
+    options = {}
+    options["detect_direction"] = "true"
+    options["probability"] = "true"
+
+    """ 带参数调用通用文字识别, 图片参数为本地图片 """
+    #d=client.basicGeneral(image, options)#用完500次后可改
+    d = client.basicAccurate(image, options)
+
+   
+    return d
+
+def BD_jsonTtext(filePath,mtype='A'):
+    """
+    mtype:'G'basicGeneral,调用通用文字识别
+         'A'basicAccurate,调用通用文字识别（高精度版）
+    """
+    if mtype=='G':
+        d=BD_picTword(filePath)
+    elif mtype=='A':
+        d=BD_picTwordAccurate(filePath)
+    else:
+        sys.exit()
     dd=[]
     for i in d['words_result']:
         dd.append(i['words'])
@@ -140,7 +167,7 @@ def BD_ocr1By1dir(dirname):
                         if len(d.strip())>0:
                             with open(op,'w',encoding='utf8') as ff:
                                 ff.write(d)
-                            os.remove(f)
+                            #os.remove(f)
                             print('remove file %s ...'%f)
                     time.sleep(0.5)
                 except Exception as e:

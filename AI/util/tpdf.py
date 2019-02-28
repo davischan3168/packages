@@ -88,26 +88,76 @@ def imgLongto1pdf(input_path, outputpath=''):
     #index=index+1
     c.save()
     return
+def BdOcrcrop(src, dstpath=''):
+    """
+    将一个长图切割成A4大小的数张图
+    """
+    img = Image.open(src)
+    w,h = img.size
+    if w>1500:
+        tw=1500/2
+    else:
+        tw=w
+    if h>4096:
+        th=4096/2
+    else:
+        th=h
+    #height=w*297/210 #A4纸比例出的高度
+    height=w*th/tw
+    #height_dim=w*297/210# 记录一个固定值，方便后期调用
+    height_dim=w*th/tw
+    num=h/height+1#将分割出的图片数量
+    index=0
+    print(height)
+    s = os.path.split(src)#分割出路径和文件名
+    if dstpath == '':
+        dstpath = s[0]
+    fn = s[1].split('.')
+    basename = fn[0]#文件名
+    postfix = fn[-1]#后缀名
+    img_urls=[]
+    #print('Original image info: %sx%s, %s, %s' % (w, h, img.format, img.mode))
+    
+    
+    while (index < num):
+        print ('The index is:', index,"height is ",height)
+        #box = (0, height-1527, w, height)
+        box = (0, height-height_dim, w, height)
+        img.crop(box).save(os.path.join(dstpath, basename + '_' + str(index) + '.' + postfix), img.format)
+        img_urls.append(os.path.join(dstpath, basename + '_' + str(index) + '.' + postfix))
+        #height = height + 1527
+        height=height+height_dim
+        index = index + 1
 
+    return img_urls
+    
+    
 def imgLongtoText(longPicpath):
     """将一张长图切割为A4大小的数张图，并存储为一txt文件"""
     out=os.path.splitext(os.path.abspath(longPicpath))[0]+'.txt'
     d=imgLongsplitimage2A4(longPicpath)
-    #s=d.pop(-1)
-
-    
-    #imgsto1pdf(d,outputpath=out)
+    #d=BdOcrcrop(longPicpath)
     f=open(out,'w',encoding='utf8')
+    cnts=''
     for i in d:
         d=BD_jsonTtext(i)
+        cnts +=d
         #print(i)
-        f.write(d)
-        time.sleep(2)
         os.remove(i)
-    #os.remove(s)
+        time.sleep(2)
+    f.write(cnts)
     f.close()
     return
 
+def imgLongtoTextdir(dirpath):
+    for root,ds,files in os.walk(dirpath):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.jpg','.png']:
+                path=os.path.join(root,f)
+                imgLongtoText(path)
+    return
+            
+
 
 if __name__=="__main__":
-    splitimage2A4(sys.argv[1])
+    imgLongsplitimage2A4(sys.argv[1])

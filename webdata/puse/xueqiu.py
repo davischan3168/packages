@@ -33,6 +33,7 @@ def get_finance_index_XQ(code):
     r=requests.get(url,headers=hds())
     text=r.text
     data=json.loads(text)
+    print(data)
     df=pd.DataFrame(data["list"])
 
     #df=df.drop(0,axis=0)

@@ -44,7 +44,7 @@ def firefox_cookies(url):
         host = parsed_url.netloc
         #host = parsed_url.netloc.split('.')
         #host='.'+'.'.join(host[1:])
-        print(host)
+        #print(host)
     else:
         raise urllib.error.URLError("You must include a scheme with your URL.")
     
@@ -61,7 +61,7 @@ def firefox_cookies(url):
     for d in dir:
         if fnmatch.fnmatch(d,'*.default'):
             path=s1+s2+'/'+d+"/cookies.sqlite"
-            print(path)
+            #print(path)
 
     sqlite_file = path
     conn = sqlite3.connect(sqlite_file)
@@ -72,7 +72,7 @@ def firefox_cookies(url):
         c.execute('SELECT count(*) FROM moz_cookies WHERE host=?',(hst,))
         cc=c.fetchall()
         for cs in cc:
-            print(cs)
+            #print(cs)
             if cs[0]>0:
                 c.execute("""SELECT name, value FROM moz_cookies WHERE host=?""", (hst,))
                 for i in c.fetchall():

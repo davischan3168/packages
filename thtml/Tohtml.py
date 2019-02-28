@@ -4,8 +4,9 @@
 import sys,os,time
 import re
 from thtml.cfg import title,endd,title1,title2
-
+from thtml.makehtmlbook import getfilelist
 pp='<p style="word-spacing:10px;line-height:1.5">&emsp;&emsp;%s</p>\n'
+
 def C2html(txtpath,output='output.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtpath:为单独的文件、一系列文件或一段字符
@@ -355,39 +356,65 @@ def C2htmlBase(txtpath,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
     os.remove(content)
     return
 ##########################################################
-def C2html_inOne(txtpath=None,output='output.html',px='\d{1,3}',index=True):
+def C2html_AllinOnev1(txtpath=None,output='output.html',regrex1='\d{1,3}',span=48,split=False,index=False,revs=True):
     """
     将目录txtpath下的txt文件内容全部转到output.html文件中
     px:文中排序的基准。
     """
     files=[]
-    if txtpath is None:
+    if isinstance(txtpath,list):
+        files.extend(txtpath)
+    elif txtpath is None:
         txtpath=os.getcwd()
-            
-    elif not os.path.isdir(txtpath):
-        raise("txtpath is not dir")
-    
-    for root,ds,fs in os.walk(txtpath):
-        for f in fs:
-            if os.path.splitext(f)[1] in ['.txt']:
-                #print(f)
-                files.append(root+'/'+f)
+        ss=getfilelist(txtpath,regrex1)
+        files=[i[1] for i in ss]
+    elif os.path.isdir(txtpath):
+        ss=getfilelist(txtpath,regrex1)
+        files=[i[1] for i in ss]
 
-    if len(files)>0:
-        ss={}
-        try:
-            for i in files:
-                dd=re.findall(px,i)
-                num=int([j for j in dd if len(j)>0][0])
-                ss[num]=i
-            dds=sorted(ss.items(),key=lambda item:item[0])
-            files=[]
-            for i in dds:
-                files.append(i[1])
-        except Exception as e:
-            print(e)
-                
-        C2html(txtpath=files,output=output,index=index)
+    if output=='':
+        output='myhtml'
+    if revs:
+        files.sort(reverse=revs)
+    if len(files)>span:
+        dff=[files[i:i+span] for i in range(0,len(files),span)]
+        if split:
+            out=output+'%s.html'
+            for i,df in enumerate(dff):
+                if os.path.exists(out%str(i)):
+                    os.remove(out%str(i))                
+                C2html(df,index=index)
+                os.rename('output.html',out%str(i))
+        else:
+            out=output+'.html'
+            C2html(files,index=index)
+            if os.path.exists(out):
+                os.remove(out)            
+            os.rename('output.html',out)
+    else:
+        C2html(files,index=index)
+        out=output+'.html'
+        if os.path.exists(out):
+            os.remove(out)         
+        os.rename('output.html',out)
+    return
+def C2html_AllinOne(txtpath=None,regrex1='\d{1,3}',index=True):
+    """
+    将目录txtpath下的txt文件内容全部转到output.html文件中
+    px:文中排序的基准。
+    """
+    files=[]
+    if isinstance(txtpath,list):
+        files.extend(txtpath)
+    elif txtpath is None:
+        txtpath=os.getcwd()
+        ss=getfilelist(txtpath,regrex1)
+        files=[i[1] for i in ss]
+    elif os.path.isdir(txtpath):
+        ss=getfilelist(txtpath,regrex1)
+        files=[i[1] for i in ss]
+
+    C2html(files,index=index)
     return
 ######################################################
 def C2html_OnebyOne(txtpath,index=True):
@@ -412,6 +439,6 @@ def C2html_OnebyOne(txtpath,index=True):
 
     
 if __name__=="__main__":
-    C2html_inOne(sys.argv[1])
+    C2html_AllinOne(sys.argv[1])
     pass
             
