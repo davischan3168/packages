@@ -66,13 +66,16 @@ def TS_ocr(plus_item):
     r = requests.post(url,data=payload)    
     return r.json()
 
-def TS_ocr_text(plus_item):
+def TS_ocrTtext(plus_item):
     text=[]
     dd=TS_ocr(plus_item)
-    for i in dd['data']['item_list']:
-        text.append(i['itemstring'])
-
-    return text
+    if dd['msg'] == 'ok':
+        for i in dd['data']['item_list']:
+            text.append(i['itemstring'])
+    else:
+        print(dd['msg'])
+    T='\n'.join(text)
+    return T
 
 def TS_ocr_text_dir(fpath):
     #dtext=[]
@@ -100,7 +103,7 @@ def TS_ocr_text_dir(fpath):
     return #dtext
                 
 def TS_ocr1By1(path):
-    text='\n'.join(TS_ocr_text(path))
+    text='\n'.join(TS_ocrTtext(path))
     #print(text)
     fpath=os.path.abspath(path)
     name=os.path.splitext(path)[0]+'.txt'

@@ -51,7 +51,20 @@ def KDXF_ocr_general(path):
     r = requests.post(URL, data=data, headers=getHeader())
     result = str(r.content, 'utf-8')
     return result
+
+def KDXF_OcrTtext(path):
+    d=KDXF_ocr_general(path)
+    ds=json.loads(d)
+    text=[]
+    if ds['code']=='0':
+        df=ds['data']['block'][0]['line']
+        #print(df)
+        for i in df:
+            text.append(i['word'][0]['content'])
+        T='\n'.join(text)
+        return T
+    
 if __name__=="__main__":
-    d=KDXF_orc_general(sys.argv[1])
+    d=KDXF_ocr_general(sys.argv[1])
     #print(result)
     #input("Entry the any key to exit")
