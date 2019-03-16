@@ -187,8 +187,8 @@ def BD_ocrAllIn1dir(dirname):
                         ff.write(d+'\n\n')
                         ff.write('----- %s ----\n\n'%f)
                         ff.flush()                        
-                        os.remove(f)
-                        print('remove file %s ...'%f)
+                        #os.remove(f)
+                        #print('remove file %s ...'%f)
                     time.sleep(0.5)
                 except Exception as e:
                     pass

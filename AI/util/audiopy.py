@@ -7,8 +7,83 @@ from pydub import AudioSegment
 from pydub.silence import split_on_silence
 import pydub
 ##########################################
+def audiosn_to_one(paths,sln=3.5,ntotal='max',repeat=1):
+    """
+    将文件夹下面的音频文件整合成，每个文件含有ntotal个音频的文件，重复
+    次数为repeat次
+    -----------------------------------------------------
+    paths:  files to be combine together;paths or file.
+    sln:   产生一个持续时间为sln seconds的无声AudioSegment对象
+    ntotal:合成的音频文件中所含有的音频个数，max表示将目录下所有的音频
+           文件合成在一个文件之中。
+    repeat:表示重复的
+    """
+    sounds=[]
+    if isinstance(paths,list):
+        for path in paths:
+            if os.path.isfile(path):
+                dp=os.path.splitext(path)
+                if dp[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+                    sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
+
+    elif os.path.isdir(paths):
+        for root,dirs,files in os.walk(paths):
+            for f in files:
+                dp=os.path.splitext(f)
+                if dp[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+                    print(f)
+                    sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
+
+    elif os.path.isfile(paths):
+        if os.path.splitext(path)[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+            sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
+
+    else:
+        sys.exit()
+
+    mysilence = AudioSegment.silent(duration=sln*1000)
+    if ntotal=='max':
+        ntotal=len(sounds)
+        
+    if len(sounds)<=ntotal:
+        if repeat==1:
+            playlist=AudioSegment.empty() 
+            for sound in sounds:
+                playlist += sound
+                playlist += mysilence
+        elif repeat>1:
+            for sound in sounds:
+                playlist=AudioSegment.empty() 
+                for _ in range(repeat):
+                    playlist += sound
+                    playlist += mysilence
+        
+        playlist.export('output_%s.wav'%str(int(time.time())),format='wav')
+    elif len(sounds)>ntotal:
+        msounds=[sounds[i:i+ntotal] for i in range(0,len(sounds),ntotal)]
+        if repeat==1:
+            playlist=AudioSegment.empty()
+            for ss in msounds:
+                for s in ss:
+                    playlist += s
+                    playlist += mysilence
+            playlist.export('output_%s.wav'%str(int(time.time())),format='wav')  
+        elif repeat>1:
+            for ss in msounds:
+                playlist=AudioSegment.empty() 
+                for s in ss:
+                    for _ in range(repeat):
+                        playlist += s
+                        playlist += mysilence
+                playlist.export('output_%s.wav'%str(int(time.time())),format='wav')  
+    else:
+        print("Only one file,not to be combine the files")
+    return
+##########################################
 def audios_to_one(paths,sln=3.5,repeat=1):
     """
+    将文件夹下面的音频文件整合成一个文件，每个文件重复
+    次数为repeat次
     paths:files to be combine together;paths or file.
     sln:产生一个持续时间为sln seconds的无声AudioSegment对象
     """
@@ -240,7 +315,7 @@ def audio2list(fpath,duration=59,pcm=False):
         if os.path.isfile(fpath):
             paths=os.path.splitext(fpath)
             if paths[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
-                Ag=AudioSegment.from_file(fpath,format=mf[1].replace('.',''))
+                Ag=AudioSegment.from_file(fpath,format=paths[1].replace('.',''))
                 path=paths[0]
 
     elif isinstance(fpath,pydub.audio_segment.AudioSegment):
@@ -269,6 +344,9 @@ def audio2list(fpath,duration=59,pcm=False):
     return files
 ##################################################
 def chunks_n(sgm,duration=3,ntotal=40,repeat=2):
+    """
+    将一段音频先进行分割，然后再进行合并
+    """    
     chunks=audio_split(sgm)
     s1=AudioSegment.silent(duration*1000)
     sounds=[chunks[i:i+ntotal] for i in range(0,len(chunks),ntotal)]
@@ -277,7 +355,7 @@ def chunks_n(sgm,duration=3,ntotal=40,repeat=2):
         pls=AudioSegment.empty()
         for sd in sound:
             p=sd+s1
-            pls +=p*repeat
+            pls +=pls*repeat
         pls.export("audio_split_%s.wav"%str(i).zfill(2))
 
     return

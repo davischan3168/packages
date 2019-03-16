@@ -57,6 +57,24 @@ def play_audio(audio, wait=True, sleep=0):
     if wait:
         play_obj.wait_done()
 
+    return
+
+def download_audio_YX(words, target_format='wav'):
+    #j=0
+    for i,word in enumerate(words):
+        r = requests.get(url='http://dict.youdao.com/dictvoice?audio=' + word +'&type=2',stream=True)
+        
+        fpath='audio/%s_%s_'%(str(i).zfill(3),word.replace(' ',''))+str(i).zfill(2) + '.mp3'
+        #print(i,word)
+        with open(fpath, 'wb+') as f:
+            for chunk in r.iter_content(chunk_size=128):
+                f.write(chunk)
+        tem=word.split(' ')
+        if len(tem)==1:
+            print("Download the voice of word fineshed: %s ......"%word)
+            #j +=1
+        elif len(tem)>1:
+            print("Download the voice of sentence fineshed: %s ......"%word) 
 
 
 if __name__ == '__main__':

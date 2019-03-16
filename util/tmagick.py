@@ -11,7 +11,7 @@ elif sys.platform in ['linux']:
     import pgmagick as PythonMagick
 
 
-def Pdf2Jpeg(inputf,outdir=None,start='',end='',ds=256,mtype='jpeg'):
+def Pdf2Jpeg(inputf,outdir=None,start='',end='',ds=128,mtype='jpeg'):
     """
     :param i_file: (str) input pdf file (eg: "/home/file.pdf")
     :param o_dire: (str) output image directory (eg: "/home/")

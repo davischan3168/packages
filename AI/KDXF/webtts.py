@@ -77,32 +77,30 @@ def writeFile(fs, content):
     f.close()
     return
 
-def KDXF_tts(text,AUE='raw',voice="xiaoyan",engine="intp65",speed="100",volume="70",rate="16000",pitch="50",path=''):
+def KDXF_tts(text,AUE='raw',voice="xiaoyan",engine="intp65",speed="50",volume="70",rate="16000",pitch="50",path=''):
         """
         text:为str，需要合成语音的内容。字节不超过1000个字符，对汉字而
              言不超过500个字
         """
-        r = requests.post(URL,headers=getHeader(AUE,voice,engine,speed,volume,rate,pitch),data=getBody(text))
-
-        contentType = r.headers['Content-Type']
-        if contentType == "audio/mpeg":
-                if path=='':
-                #sid = r.headers['sid']
-                        if AUE == "raw":
-                                #print(r.content)
-                                path="audio/audio_%s.wav"%str(int(time.time()*10000))
-                                #writeFile("audio/audio_%s.wav"%str(int(time.time()*10000)),r.content)
-                                #writeFile("audio/"+str(int(time.time()))+sid+str(int(time.time()))+".wav", r.content)
-                        else :
-                                #print(r.content)
-                                path="audio/audio_%s.mp3"%str(int(time.time()*10000))
-                                #writeFile("audio/audio_%s.wav"%str(int(time.time()*10000)),r.content)
-                                #writeFile("audio/"+str(int(time.time()))+"xiaoyan"+".mp3", r.content)
-                writeFile(path,r.content)
-                print ("success, sid = " + sid)
+        if path=='':
+                
+                if AUE == "raw":
+                        path="audio/audio_%s.wav"%text.strip()
+                else :
+                        path="audio/audio_%s.mp3"%text.strip()
+        if not os.path.exists(path):
+               r = requests.post(URL,headers=getHeader(AUE,voice,engine,speed,volume,rate,pitch),data=getBody(text))
+               contentType = r.headers['Content-Type']
+               if contentType == "audio/mpeg":
+                       sid = r.headers['sid']
+                       writeFile(path,r.content)
+                       print ("success, sid = " + sid)
+               else:
+                       print(text)
+                       print(r.text)
         else :
-                print (r.text)
-                #pass
+                #print ("The file %s is exist."%path)
+                pass
         return 
 def KDXF_ttsFile(path):
         """
@@ -124,7 +122,24 @@ def KDXF_ttsFile(path):
                 for i,co in enumerate(text):
                         d=KDXF_tts(co)
 
-        return 
+        return
+def KDXF_ttsWbyW(fpath,split='、'):
+        f=open(fpath,encoding='utf8')
+        txt=f.readlines()
+        f.close()
+        for line in txt:
+                if len(line.strip())>0:
+                        dd=line.split(split)
+                        dd=[i.strip() for i in dd if len(i.strip())>0]
+                        if len(dd)>0:
+                                for w in dd:
+                                        KDXF_tts(w)
+                                        time.sleep(0.2)
+                        else:
+                                print('List is empty')
+                                        
+        return
+
                         
 if __name__=="__main__":
         #KDXF_ttsV(sys.argv[1])

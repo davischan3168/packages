@@ -55,7 +55,7 @@ class Translator:
         return r.read().decode('utf-8')
 
 
-def google_trans(text,scr,dest,WR=True,nwords=500,splitword=True):
+def ggtrans(text,scr='zh',dest='en',WR=True,nwords=500,splitword=True):
     """
     text:需要翻译的文本，最长的字节不超过500个。
     src:输入文本的语言
@@ -77,7 +77,7 @@ def google_trans(text,scr,dest,WR=True,nwords=500,splitword=True):
                 f.write("Translated Failed ......")
             f.write('\n\n')
             f.flush()
-            time.sleep(0.5)
+            time.sleep(0.2)
         f.close()
     else:
         dlist=[]
@@ -85,7 +85,7 @@ def google_trans(text,scr,dest,WR=True,nwords=500,splitword=True):
             text=text.replace('\n','').replace('-','')
             trans=translator.translate(text)
             dlist.append(trans)
-            time.sleep(0.5)
+            time.sleep(0.2)
         return dlist
 
 def _get_text(text,nwords=500,splitword=True):
@@ -112,7 +112,7 @@ def _get_text(text,nwords=500,splitword=True):
     else:
         sys.argv[1]
         
-    if splitword:
+    if splitword & len(cnt)<=500:
         source=cnt.split('。')
     else:
         source=[cnt[i:i+nwords] for i in range(0,len(cnt),nwords)]

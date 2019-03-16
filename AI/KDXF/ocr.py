@@ -63,8 +63,12 @@ def KDXF_OcrTtext(path):
             text.append(i['word'][0]['content'])
         T='\n'.join(text)
         return T
+    else:
+        print("The Errors code is %s, decs is %s."%(ds['code'],ds["desc"]))
+        return ''.join(text)
     
 if __name__=="__main__":
-    d=KDXF_ocr_general(sys.argv[1])
+    #d=KDXF_ocr_general(sys.argv[1])
     #print(result)
     #input("Entry the any key to exit")
+    pass

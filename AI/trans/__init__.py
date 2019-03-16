@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*-coding:utf-8-*-
 
-from AI.youdao.youdaodict_voice import download_audio
-from AI.youdao.youdao import auTot
+from AI.trans.youdaodict_voice import download_audio as AudioDownLoad
+from AI.trans.youdaodict_voice import download_audio_YX as AudioDownLoadYX
+from AI.trans.youdao import auTot
+from AI.trans.google import ggtrans

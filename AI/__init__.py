@@ -21,7 +21,7 @@ from AI.KDXF.ocr import (KDXF_ocr_general,KDXF_OcrTtext)
 ################################3
 from AI.util.tpdf import (imgLongsplitimage2A4,imgsto1pdf,imgLongplitT1pdf,imgLongto1pdf,imgLongtoText)
 from AI.util.textsplit import (BD_text_split,TS_text_split)
-from AI.util.audiopy import (new_from_audio,audio_split_combine,audio_split,audios_to_one)
+from AI.util.audiopy import (new_from_audio,audio_split_combine,audio_split,audios_to_one,audiosn_to_one)
 
 def Ocr_1By1dir(dirname,func=BD_jsonTtext):
     """
