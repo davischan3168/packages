@@ -15,7 +15,7 @@ import time
 try:
     from .util import ReadinChunks_file,audio_play,ReadInChunks
 except:
-    from util import ReadinChunks_file,audio_play,ReadInChunks
+    from AI.BDAI.util import ReadinChunks_file,audio_play,ReadInChunks
 
 """ 你的 APPID AK SK """
 APP_ID = '10947352'
