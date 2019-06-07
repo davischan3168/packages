@@ -3,7 +3,7 @@
 
 import sys,os,time
 import re
-from thtml.util import make_Mulu_content
+from thml.util import make_Mulu_content
 
 cstr=['，','。','？','！','；','：']
 #temp = "想做/ 兼_职/学生_/ 的 、加,我Q：  1 5.  8 0. ！！？？  8 6 。0.  2。 3     有,惊,喜,哦"  
@@ -66,8 +66,108 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
 
     htmlName="outputtxt.html"
     
+    if os.path.exists(htmlName):
+        os.remove(htmlName)
 
-    tb,ctt=make_Mulu_content(files)
+    #####################
+    '''
+    for i,txtName in enumerate(files):
+        try:
+            txt=open(txtName,'r',encoding='utf8')
+            text=txt.readlines()
+        except:
+            txt=open(txtName,'r',encoding='gbk')
+            text=txt.readlines()            
+        txt.close()
+        
+        text=[x.strip() for x in text]
+        s='\n'.join(text)
+        ss=re.sub(r'\n{1,}',r'\n\n',s)
+        text=ss.splitlines()
+
+        ntitle=os.path.splitext(os.path.basename(txtName))[0]#[2:]
+        if i>0:
+            tb.write('</li></ul>\n')
+            pass
+        tb.write('<ul><li><a href="#sec-%s-%s">%s</a>\n'%(i,txtName,ntitle))
+        titles='''<h1 id="sec-%s-%s">%s</h1> \n'''%(i,txtName,ntitle)
+        ctt.write(titles)
+
+        muI=1
+        mu1o=muI
+        muII=1
+        mu2o=muII
+        muIII=1
+        mu3o=muIII
+        muIV=1
+        for line in text:
+            line=line.strip()
+            print(line)
+            if m1.match(line) is not None:
+                if muI>mu1o:
+                    tb.write('</li></ul>\n')
+                    #print('ok......1')
+                    mu1o=muI
+                ctt.write('</div>\n')
+                tb.write('<ul><li><a href="#sec-%s-%s">%s</a>\n'%(muI,txtName,line))
+                tb.write('\n')
+                titles='''<div id="outline-container-%s" class="outline-%s">
+                <h2 id="sec-%s-%s">%s</h2>\n'''%(muI,muI+1,muI,txtName,line)
+                ctt.write(titles)
+                muI=muI+1
+            elif m2.match(line) is not None:
+                if muII>mu2o:
+                    tb.write('</li></ul>\n')
+                    #print('ok...........2')
+                    mu20=muII
+                tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a>\n'%(muI,muII,txtName,line))
+                titles='<div id="outline-container-%s-%s"><h3 id="sec-%s-%s-%s">%s</h4>\n'%(muI,muII,muI,muII,txtName,line)
+                ctt.write(titles)
+                print(titles)
+                muII=muII+1
+            elif m3.match(line) is not None:
+                if index:
+                    tb.write('<ul><li><a  href="#sec-%s-%s-%s-%s">%s</a></li></ul>\n'%(muI,muII,muIII,txtName,line))
+                    tb.write('\n')
+                    titles='<div id="outline-container-%s-%s-%s"><h4 id="sec-%s-%s-%s-%s">%s</h4>\n '%(muI,muII,muIII,muI,muII,muIII,txtName,line)
+                    ctt.write(titles)            
+                    muIII=muIII+1
+                    #print('ok.......3')
+
+                else:
+                    ctt.write(titles)
+
+
+            elif len(line)>0:
+                line=line\
+                  .replace('&','&')\
+                  .replace('<','<')\
+                  .replace('® ','® ')\
+                  .replace('"','"')\
+                  .replace('©','©')\
+                  .replace('™','™')\
+                  .replace('<','<')\
+                  .replace('\t',"    ").\
+                  replace(' ',' ')
+                line='<p>&emsp;&emsp;%s</p>\n'%line
+                #print(line)
+                ctt.write(line)
+            else:
+                pass
+
+        
+        tb.write(r'</li></ul>')
+
+    ctt.write('</div>')
+    tb.write(r'</div></div>')    
+    ctt.close()
+    tb.close()
+
+    tb=open(table,'r',encoding='utf8')
+    ctt=open(content,'r',encoding='utf8')
+    '''
+    ###############
+    tb,ctt=
     if os.path.exists(htmlName):
         os.remove(htmlName)    
     try:
@@ -81,9 +181,13 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
         html.write(tb)
         html.write(ctt)
         
+    #tb.close()
+    #ctt.close()
     html.write('</body></html>')
     html.close()
     print("\n转换成功,保存在%s"%htmlName)
+    #os.remove(table)
+    #os.remove(content)
     return
 ###############################################################
 def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=True):
@@ -104,24 +208,139 @@ def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.comp
         print("%s is not file...."%txtName)
         sys.exit()
     
+    if os.path.exists(htmlName):
+        os.remove(htmlName)
 
-    tb,ctt=make_Mulu_content(files,m1=m1,m2=m2,m3=m3,index=index)
+    table='table.txt'
+    #设置保存目录的暂时文件
+    content="output.txt"
+    #设置保存内容的暂时文件
+
+    tb=open(table,'w',encoding='utf8')
+    ctt=open(content,"w",encoding='utf8')
+
+    ############
+    tb.write('''<div id="table-of-contents">
+    <h2>Table of Contents</h2>
+    <div id="text-table-of-contents">
+    \n''')
+
+   
+    for i,txtName in enumerate(files):
+        try:
+            txt=open(txtName,'r',encoding='utf8')
+            text=txt.readlines()
+        except:
+            txt=open(txtName,'r',encoding='gbk')
+            text=txt.readlines()            
+        txt.close()
+        
+        text=[x.strip() for x in text]
+        s='\n'.join(text)
+        ss=re.sub(r'\n{1,}',r'\n\n',s)
+        text=ss.splitlines()
+
+        ntitle=os.path.splitext(os.path.basename(txtName))[0]#[2:]
+        if i>0:
+            tb.write('</li></ul>\n')
+            pass
+        tb.write('<ul><li><a href="#sec-%s-%s">%s</a>\n'%(i,txtName,ntitle))
+        titles='''<h1 id="sec-%s-%s">%s</h1> \n'''%(i,txtName,ntitle)
+        ctt.write(titles)
+
+        muI=1
+        mu1o=muI
+        muII=1
+        mu2o=muII
+        muIII=1
+        mu3o=muIII
+        muIV=1
+        for line in text:
+            line=line.strip()
+            print(line)
+            if m1.match(line) is not None:
+                if muI>mu1o:
+                    tb.write('</li></ul>\n')
+                    #print('ok......1')
+                    mu1o=muI
+                ctt.write('</div>\n')
+                tb.write('<ul><li><a href="#sec-%s-%s">%s</a>\n'%(muI,txtName,line))
+                tb.write('\n')
+                titles='''<div id="outline-container-%s" class="outline-%s">
+                <h2 id="sec-%s-%s">%s</h2>\n'''%(muI,muI+1,muI,txtName,line)
+                ctt.write(titles)
+                muI=muI+1
+            elif m2.match(line) is not None:
+                if muII>mu2o:
+                    tb.write('</li></ul>\n')
+                    #print('ok...........2')
+                    mu20=muII
+                tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a>\n'%(muI,muII,txtName,line))
+                titles='<div id="outline-container-%s-%s"><h3 id="sec-%s-%s-%s">%s</h4>\n'%(muI,muII,muI,muII,txtName,line)
+                ctt.write(titles)
+                print(titles)
+                muII=muII+1
+            elif m3.match(line) is not None:
+                if index:
+                    tb.write('<ul><li><a  href="#sec-%s-%s-%s-%s">%s</a></li></ul>\n'%(muI,muII,muIII,txtName,line))
+                    tb.write('\n')
+                    titles='<div id="outline-container-%s-%s-%s"><h4 id="sec-%s-%s-%s-%s">%s</h4>\n '%(muI,muII,muIII,muI,muII,muIII,txtName,line)
+                    ctt.write(titles)            
+                    muIII=muIII+1
+                    #print('ok.......3')
+
+                else:
+                    ctt.write(titles)
+
+
+            elif len(line)>0:
+                line=line\
+                  .replace('&','&')\
+                  .replace('<','<')\
+                  .replace('® ','® ')\
+                  .replace('"','"')\
+                  .replace('©','©')\
+                  .replace('™','™')\
+                  .replace('<','<')\
+                  .replace('\t',"    ").\
+                  replace(' ',' ')
+                line='<p>&emsp;&emsp;%s</p>\n'%line
+                #print(line)
+                ctt.write(line)
+            else:
+                pass
+
+        
+        tb.write(r'</li></ul>')
+
+    ctt.write('</div>')
+    tb.write(r'</div></div>') 
+    ###################
+    ctt.close()
+    tb.close()    
+
+    tb=open(table,'r',encoding='utf8')
+    ctt=open(content,'r',encoding='utf8')
     if os.path.exists(htmlName):
         os.remove(htmlName)
     try:
         html=open(htmlName,'w',encoding='utf8')
         html.write(htmlcode1)
-        html.write(tb)
-        html.write(ctt)
+        html.write(tb.read())
+        html.write(ctt.read())
     except:
         html=open(htmlName,'w',encoding='gbk')
         html.write(htmlcode1)
-        html.write(tb)
-        html.write(ctt)
+        html.write(tb.read())
+        html.write(ctt.read())
 
+    tb.close()
+    ctt.close()
     html.write('</body></html>')
     html.close()
     print("\n转换成功,保存在%s"%htmlName)
+    os.remove(table)
+    os.remove(content)
     return
 ###################################################
 def txt2html_odir(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=False):

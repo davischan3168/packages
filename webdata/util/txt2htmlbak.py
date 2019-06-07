@@ -262,7 +262,7 @@ def txt2html_inonefile(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.comp
                     ctt.write('</div>\n')
                     tb.write('</ul>\n')
                     #tb.write('</li>\n')
-                tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a></li></ul>\n'%(muI,muII,txtName,line))
+                tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a></li>\n'%(muI,muII,txtName,line))
                 #tb.write('\n')
                 titles='<div id="outline-container-%s-%s"><h3 id="sec-%s-%s-%s">%s</h4>\n'%(muI,muII,muI,muII,txtName,line)
                 ctt.write(titles)

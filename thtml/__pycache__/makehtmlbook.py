@@ -4,36 +4,36 @@
 import os
 import sys
 import re
+if sys.platform.startswith('linux'):
+    sys.path.append('/media/chen/Davis/python/packages')
+
+else:
+    sys.path.append('J:\\python\packages')
+
+import webdata as wd
 from util.ch2num import ChNumToArab
 import thtml as th
-def getfilelist(path,regrex1=re.compile('\d{1,3}')):
-    """
-    regrex1:为re.compile 的类型    
-    """
+def getfilelist(path,regrex1='\d{1,3}'):
     ss={}
     for root,ds,fs in os.walk(path):
         for f in fs:
-            print(f)
-            if isinstance(regrex1,re.Pattern):
-                print('ok....1')
-                if os.path.splitext(f)[1] in ['.txt']:
-                    
-                    if len(re.findall(regrex1,f))>0:
-                        num=int((regrex1.findall(f)[0]))
-                        ss[num]=os.path.abspath(os.path.join(root,f))
-                    elif len([i for i in regrex1.findall(ChNumToArab(f)) if len(i)>0])>0:
-                        num= int(regrex1.findall(ChNumToArab(f))[0])
-                        ss[num]=os.path.abspath(root+'/'+f)
-                    
-                    dd=sorted(ss.items(),key=lambda item:item[0])
-            else:
-                print('ok ......2')
-                ss[f]=os.path.abspath(root+'/'+f)
-                dd=sorted(ss.items(),key=lambda item:item[0])
+            #print(f)
+            if os.path.splitext(f)[1] in ['.txt']:
+                #xu=tonum(f)
+                if len(re.findall(regrex1,f))>0:
+                    num=int((re.findall(regrex1,f)[0]))
+                    ss[num]=os.path.abspath(root+'/'+f)
+                elif len([i for i in re.findall(regrex1,ChNumToArab(f)) if len(i)>0])>0:
+                    num= int(re.findall(regrex1,ChNumToArab(f))[0])
+                    ss[num]=os.path.abspath(root+'/'+f)
+                else:
+                    ss[f]=os.path.abspath(root+'/'+f)
+
+    dd=sorted(ss.items(),key=lambda item:item[0])
 
     return dd
     
-def MyHtmlSplit(path,output='',regrex1=re.compile('\d{1,3}'),func=th.txt2htmlv1,span=48,split=True,index=False,revs=True):
+def MyHtmlSplit(path,output='',regrex1='\d{1,3}',func=wd.txt2htmlv1,span=48,split=True,index=False,revs=True):
     """
     path:文件夹的名称
     output:输出文件的名称
@@ -62,17 +62,15 @@ def MyHtmlSplit(path,output='',regrex1=re.compile('\d{1,3}'),func=th.txt2htmlv1,
         if split:
             out=output+'%s.html'
             for i,df in enumerate(dff):
-                if os.path.exists(out%str(i).zfill(2)):
-                    os.remove(out%str(i).zfill(2))                
+                if os.path.exists(out%str(i)):
+                    os.remove(out%str(i))                
                 func(df,index=index)
                 if func.__name__=="txt2htmlv1":
-                    os.rename('outputtxt.html',out%str(i).zfill(2))
+                    os.rename('outputtxt.html',out%str(i))
                 else:
-                    os.rename('output.html',out%str(i).zfill(2))
+                    os.rename('output.html',out%str(i))
         else:
             out=output+'.html'
-            if os.path.eixsts(out):
-                os.remove(out)
             func(df,index=index)
             if os.path.exists(out%str(i)):
                 os.remove(out%str(i))             
@@ -93,7 +91,6 @@ def MyHtmlSplit(path,output='',regrex1=re.compile('\d{1,3}'),func=th.txt2htmlv1,
     return 
 if __name__=="__main__":
     #DXtohtml(sys.argv[1])
-    #ddd=getfilelist(sys.argv[1],regrex1=None)
     #MyHtmlSplit(sys.argv[1],'最高法指导性案例',func=wd.txt2htmlv1,span=48,split=True,index=False,revs=False)
-    MyHtmlSplit(sys.argv[1],'最高法指导性案例',regrex1=None,func=th.C2html,span=48,split=False,index=False,revs=False)
+    MyHtmlSplit(sys.argv[1],'最高法指导性案例',func=th.C2html,span=48,split=True,index=False,revs=False)
     pass
