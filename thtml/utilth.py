@@ -56,7 +56,7 @@ def make_Mulu_content(files,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile
         muIV=1
         for line in text:
             line=line.strip()
-            print(line)
+            #print(line)
             if m1.match(line) is not None:
                 if muI>mu1o:
                     tb.write('</li></ul>\n')
@@ -77,7 +77,7 @@ def make_Mulu_content(files,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile
                 tb.write('<ul><li><a href="#sec-%s-%s-%s">%s</a>\n'%(muI,muII,txtName,line))
                 titles='<div id="outline-container-%s-%s"><h3 id="sec-%s-%s-%s">%s</h4>\n'%(muI,muII,muI,muII,txtName,line)
                 ctt.write(titles)
-                print(titles)
+                #print(titles)
                 muII=muII+1
             elif m3.match(line) is not None:
                 if index:

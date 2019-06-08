@@ -3,7 +3,7 @@
 
 import sys,os,time
 import re
-from thtml.util import make_Mulu_content
+from thtml.utilth import make_Mulu_content
 
 cstr=['，','。','？','！','；','：']
 #temp = "想做/ 兼_职/学生_/ 的 、加,我Q：  1 5.  8 0. ！！？？  8 6 。0.  2。 3     有,惊,喜,哦"  

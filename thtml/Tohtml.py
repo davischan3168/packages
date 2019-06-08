@@ -4,10 +4,38 @@
 import sys,os,time
 import re
 from thtml.cfg import title,endd,title1,title2
-from thtml.makehtmlbook import getfilelist
-from thtml.util import make_Mulu_content
+#from thtml.makehtmlbook import getfilelist
+from thtml.utilth import make_Mulu_content
+from util.ch2num import ChNumToArab
 
 pp='<p style="word-spacing:10px;line-height:1.5">&emsp;&emsp;%s</p>\n'
+
+def getfilelist(path,regrex1=re.compile('\d{1,3}')):
+    """
+    regrex1:为re.compile 的类型    
+    """
+    ss={}
+    for root,ds,fs in os.walk(path):
+        for f in fs:
+            #print(f)
+            if isinstance(regrex1,re.Pattern):
+                #print('ok....1')
+                if os.path.splitext(f)[1] in ['.txt']:
+                    
+                    if len(re.findall(regrex1,f))>0:
+                        num=int((regrex1.findall(f)[0]))
+                        ss[num]=os.path.abspath(os.path.join(root,f))
+                    elif len([i for i in regrex1.findall(ChNumToArab(f)) if len(i)>0])>0:
+                        num= int(regrex1.findall(ChNumToArab(f))[0])
+                        ss[num]=os.path.abspath(root+'/'+f)
+                    
+                    dd=sorted(ss.items(),key=lambda item:item[0])
+            else:
+                #print('ok ......2')
+                ss[f]=os.path.abspath(root+'/'+f)
+                dd=sorted(ss.items(),key=lambda item:item[0])
+
+    return dd
 
 def C2html(txtpath,output='output.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """

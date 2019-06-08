@@ -16,7 +16,7 @@ title=r"""
 paperwidth=210mm,
 left=2.3cm,%
 right=2.3cm,%
-top=2.1cm,%
+t..`op=2.1cm,%
 bottom=2.1cm,%
 headheight=0cm,%
 headsep=0cm,
@@ -34,7 +34,7 @@ footskip=0cm
 \parindent=2em
 \definecolor{defaultbgcolor-0}{RGB}{199,237,204}%for eye
 \pagecolor{defaultbgcolor-0}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%以下正文%%%%%%%%%%%%
+%`.`%%%%%%%%%%%%%%%%%%%%%%%%%%%%%以下正文%%%%%%%%%%%%
 \begin{document}
 """
 
@@ -61,9 +61,38 @@ left=0.2cm,right=0.2cm,foot=0cm, nohead,nofoot}%
 %\begin{pinyinscope}
 """
 
+pad=r"""
+\documentclass[myxecjk,msize]{gdhsarticle}%{kindle}
+\geometry{paperwidth=19cm,% 
+paperheight=26cm, 
+left=2.5cm,%
+right=2.5cm,%
+top=2cm,%
+bottom=2cm,%
+headheight=0cm,%
+headsep=0cm,
+footskip=0cm
+}%
+\linespacing{1.52}%
+\pagestyle{empty}
+\usepackage{xpinyin}
+\setmainfont{CMU Serif}
+\setCJKmainfont{SimSun}
+%\include{setting}
+%\include{pagesign}
+\setlength{\unitlength}{1cm}
+\parindent=2em
+\definecolor{defaultbgcolor-0}{RGB}{199,237,204}%for eye
+\pagecolor{defaultbgcolor-0}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%以下正文%%%%%%%%%%%%
+\begin{document}
+\setlength{\parindent}{0em}
+%\begin{pinyinscope}
+"""
+
 end="""%\end{pinyinscope}
 \end{document}"""
-latexs={'article':title,'kindle':kindle}
+latexs={'article':title,'kindle':kindle,'pad':pad}
 section='\section{%s}'
 
 def _removef(outpath):
@@ -138,7 +167,7 @@ def Singal_input(InFile,pyin=False):
             if len(nl)>0:
                 cts.append(nl)
     cts='\n\n'.join(cts).replace('&nbsp','')
-    cts=re.sub(r'\\',r'/',cts)
+    #cts=re.sub(r'\\',r'/',cts)
     cts=cts.replace('#','\#').replace('&','\&').replace('$','\$').replace('|','\|').replace('_','\_')
     cts=re.sub(r'%',r'\%',cts)
     
@@ -152,7 +181,7 @@ def Singal_input(InFile,pyin=False):
     fl.close()
     return outFile2
 ######################################
-def Mains(DirName,OutFile='Main',mtype='article',num=True,pyin=False,Total='max'):
+def Mains(DirName,OutFile='Main',mtype='pad',num=True,pyin=False,Total='max'):
     txt_files={}
     
     for root,dirs,files in os.walk(DirName):
@@ -162,7 +191,7 @@ def Mains(DirName,OutFile='Main',mtype='article',num=True,pyin=False,Total='max'
                     rt1=root.split('\\')
                     root='/'.join(rt1)
                 pf=root+'/'+f
-                print(pf)
+                #print(pf)
                 if num:
                     fnum=re.findall('第(\d*)批',ut.ChNumToArab(f))
                     if len(fnum)==0:
@@ -225,7 +254,7 @@ def Mains(DirName,OutFile='Main',mtype='article',num=True,pyin=False,Total='max'
     for root,dirs,files in os.walk(DirName):
         for f in files:
             if os.path.splitext(f)[1] in ['.tex']:
-                #os.remove('%s'%os.path.abspath(root+'/'+f))
+                os.remove('%s'%os.path.abspath(root+'/'+f))
                 pass
 
     return

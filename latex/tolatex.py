@@ -61,9 +61,38 @@ left=0.2cm,right=0.2cm,foot=0cm, nohead,nofoot}%
 %\begin{pinyinscope}
 """
 
+pad=r"""
+\documentclass[myxecjk,msize]{gdhsarticle}%{kindle}
+\geometry{paperwidth=19cm,% 
+paperheight=26cm, 
+left=2.5cm,%
+right=2.5cm,%
+top=2cm,%
+bottom=2cm,%
+headheight=0cm,%
+headsep=0cm,
+footskip=0cm
+}%
+\linespacing{1.52}%
+\pagestyle{empty}
+\usepackage{xpinyin}
+\setmainfont{CMU Serif}
+\setCJKmainfont{SimSun}
+%\include{setting}
+%\include{pagesign}
+\setlength{\unitlength}{1cm}
+\parindent=2em
+\definecolor{defaultbgcolor-0}{RGB}{199,237,204}%for eye
+\pagecolor{defaultbgcolor-0}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%以下正文%%%%%%%%%%%%
+\begin{document}
+\setlength{\parindent}{0em}
+%\begin{pinyinscope}
+"""
+
 end="""%\end{pinyinscope}
 \end{document}"""
-latexs={'article':title,'kindle':kindle}
+latexs={'article':title,'kindle':kindle,'pad':pad}
 section='\section{%s}'
 
 def _removef(outpath):
@@ -149,7 +178,7 @@ def Singal_input(InFile,pyin=False):
     fl.close()
     return outFile2
 
-def Mains(DirName,OutFile='Main.tex',mtype='article',num=True,pyin=False):
+def Mains(DirName,OutFile='Main.tex',mtype='pad',num=True,pyin=False):
     txt_files={}
     #print(OutFile)
     fl=open(OutFile,'w',encoding='utf8')
