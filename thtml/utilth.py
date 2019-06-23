@@ -4,6 +4,44 @@ import os
 import sys
 import re
 
+def GFlist(path,regrex1=None,research=None):
+    """
+    regrex1:为re.compile 的类型    
+    """
+    ss={}
+    for root,ds,fs in os.walk(path):
+        for f in fs:
+            #print(f)
+            if regrex1 is not None:
+                #print('ok....1')
+                if os.path.splitext(f)[1] in ['.txt']:
+                    
+                    if len(re.findall(regrex1,f))>0:
+                        num=int((regrex1.findall(f)[0]))
+                        ss[num]=os.path.abspath(os.path.join(root,f))
+                    elif len([i for i in regrex1.findall(ChNumToArab(f)) if len(i)>0])>0:
+                        num= int(regrex1.findall(ChNumToArab(f))[0])
+                        ss[num]=os.path.abspath(root+'/'+f)
+                    
+                    dd=sorted(ss.items(),key=lambda item:item[0])
+            else:
+                #print('ok ......2')
+                
+                ss[f]=os.path.abspath(root+'/'+f)
+                dd=sorted(ss.items(),key=lambda item:item[0])
+
+    if (regrex1 is None) and (research is not None):
+        ddf={}
+        for k,v in dd:
+            if research in k:
+                ddf[k]=v
+
+        if len(ddf)>0:
+            dd=sorted(ddf.items(),key=lambda item:item[0])
+        else:
+            print('没有关于 "%s" 的文件'%research)
+    return dd
+
 def make_Mulu_content(files,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=True):
     """
     files:为纯文本文件的列表。否则会出现错误。

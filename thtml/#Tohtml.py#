@@ -36,9 +36,7 @@ def getfilelist(path,regrex1=None,Research=None):
                 
                 ss[f]=os.path.abspath(root+'/'+f)
                 dd=sorted(ss.items(),key=lambda item:item[0])
-    if (regrex1 is None) and (Research is not None):
-        d=[i[1] for i[0] in dd if Research in i[0]]
-        dd=d
+
 
     return dd
 

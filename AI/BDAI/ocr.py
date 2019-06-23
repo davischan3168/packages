@@ -152,7 +152,11 @@ def BD_table_orc(path,mtype='excel'):
         return s['forms'][0]['body']
 
         
-def BD_ocr1By1dir(dirname):
+def BD_ocr1By1dir(dirname,mtype='A'):
+    """
+    mtype:'G'basicGeneral,调用通用文字识别
+         'A'basicAccurate,调用通用文字识别（高精度版）
+    """    
     for root,dirs,files in os.walk(dirname):
         for f in files:
             #print(os.path.splitext(f)[1])
@@ -163,7 +167,7 @@ def BD_ocr1By1dir(dirname):
                     #print(f)
                     op=os.path.splitext(f)[0]+'.txt'
                     if not os.path.exists(op):
-                        d=BD_jsonTtext(f)
+                        d=BD_jsonTtext(f,mtype=mtype)
                         if len(d.strip())>0:
                             with open(op,'w',encoding='utf8') as ff:
                                 ff.write(d)
@@ -173,7 +177,11 @@ def BD_ocr1By1dir(dirname):
                 except Exception as e:
                     pass
     return
-def BD_ocrAllIn1dir(dirname):
+def BD_ocrAllIn1dir(dirname,mtype='A'):
+    """
+    mtype:'G'basicGeneral,调用通用文字识别
+         'A'basicAccurate,调用通用文字识别（高精度版）
+    """    
     Al='output_allinone.txt'
     ff=open(Al,'a',encoding='utf8')
     for root,dirs,files in os.walk(dirname):
@@ -181,7 +189,7 @@ def BD_ocrAllIn1dir(dirname):
             if os.path.splitext(f)[1] in ['.jpg','.png','.jpeg']:
                 f=os.path.abspath(root+'/'+f)
                 try:
-                    d=BD_jsonTtext(f)
+                    d=BD_jsonTtext(f,mtype=mtype)
                     print(f)
                     if len(d.strip())>0:
                         ff.write(d+'\n\n')

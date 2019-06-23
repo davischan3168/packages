@@ -12,6 +12,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 from AI.util.audiopy import audio2list
 import time
+import re
 try:
     from .util import ReadinChunks_file,audio_play,ReadInChunks
 except:
@@ -196,11 +197,20 @@ def BD_TTSBase(word,vol=15,per=1,spd=3,pit=5,aue=6,path='',pl=False):
                 audiof=AudioSegment(result)
                 if pl:
                     play(audiof)
-            with open(path, 'wb') as f:
-                f.write(result)    
+            if not os.path.exists(path):
+                with open(path, 'wb') as f:
+                    f.write(result)    
     return
 
-
+def WbyWord(fpath):
+    fi=open(fpath).readlines()
+    for i in fi:
+        line = i.strip()
+        if len(line)>0:
+            line=re.split(',|，',line)
+            for word in line:
+                BD_TTSBase(word)
+    return 
 
 
 if __name__=="__main__":

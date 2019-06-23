@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+# -*-coding:utf-8-*-
+IMPORT FITZ
+IMPORT GLOB
+IMPORT OS
+IMPORT RE
+ 
+DEF RIGHTINPUT(DESC):
+    FLAG=TRUE
+    WHILE(FLAG):
+        INSTR = INPUT(DESC)
+    try:
+      intnum = eval(instr)
+      if type(intnum)==int:
+        flag = False
+    except:
+      print('请输入正整数！')
+      pass
+  return intnum
+ 
+pdffile = glob.glob("*.pdf")[0]
+
+def pdf2png(pdffile):
+    doc = fitz.open(pdffile)
+    name=os.path.splitext(os.path.basename(pdffile))[0]
+    flag = rightinput("输入：1：全部页面；2：选择页面\t")
+    if flag == 1:
+        strat = 0
+        totaling = doc.pageCount
+    else:
+        strat = rightinput('输入起始页面：') - 1
+        totaling = rightinput('输入结束页面：')
+
+    if not os.path.exists('pdf2png'):
+        os.mkdir('pdf2png')
+    for pg in range(strat, totaling):
+        page = doc[pg]
+        zoom = int(100)
+        rotate = int(0)
+        trans = fitz.Matrix(zoom / 100.0, zoom / 100.0).preRotate(rotate)
+        pm = page.getPixmap(matrix=trans, alpha=False)
+        pm.writePNG('pdf2png/%s_%s.png' %(name, str(pg+1)))
+
+    return
+
+def pic2pdf(dirname,cc=None):
+  
+    doc = fitz.open()
+    if os.path.isdir(dirname):
+        df=glob.glob("%s/*"%dirname)
+        dff=[]
+        for i in df:
+          tt=os.path.splitext(i)
+          if tt[1] in ['.png','.jpg','.jepg']:
+              dff.append(i)
+            
+              if cc is not None:
+                  dfile={}
+                  for i in dff:
+                      num=cc.findall(i)
+                      #print(len(num))
+                      if  len(num)==1:
+                          nm = int(num[0])
+                          dfile[nm] = i
+                      else:
+                          print('The number of',num, 'is more than 1')
+                  dd=sorted(dfile.items(),key=lambda item:item[0])
+                  print(dd)
+                  for img in dd:
+                      print(img[1])
+                      imgdoc = fitz.open(img[1])         # 打开图片
+                      pdfbytes = imgdoc.convertToPDF()    # 使用图片创建单页的 PDF
+                      imgpdf = fitz.open("pdf", pdfbytes)
+                      doc.insertPDF(imgpdf)          # 将当前页插入文档
+                  if os.path.exists("allimages.pdf"):
+                      os.remove("allimages.pdf")
+                      doc.save("allimages.pdf")          # 保存pdf文件
+                      doc.close()
+
+
+              else:
+                  for img in sorted(dff): # 读取图片，确保按文件名排序
+                      print(img)
+                      imgdoc = fitz.open(img)         # 打开图片
+                      pdfbytes = imgdoc.convertToPDF()    # 使用图片创建单页的 PDF
+                      imgpdf = fitz.open("pdf", pdfbytes)
+                      doc.insertPDF(imgpdf)          # 将当前页插入文档
+                  if os.path.exists("allimages.pdf"):
+                      os.remove("allimages.pdf")
+                      doc.save("allimages.pdf")          # 保存pdf文件
+                      doc.close()
+    return

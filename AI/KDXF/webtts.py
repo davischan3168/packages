@@ -7,6 +7,7 @@ import base64
 import os
 import sys
 import json
+import re
 
 URL = "http://api.xfyun.cn/v1/service/v1/tts"
 AUE = "raw"
@@ -77,7 +78,7 @@ def writeFile(fs, content):
     f.close()
     return
 
-def KDXF_tts(text,AUE='raw',voice="xiaoyan",engine="intp65",speed="50",volume="70",rate="16000",pitch="50",path=''):
+def KDXF_tts(text,AUE='raw',voice="xiaoyan",engine="intp65",speed="45",volume="70",rate="16000",pitch="50",path=''):
         """
         text:为str，需要合成语音的内容。字节不超过1000个字符，对汉字而
              言不超过500个字
@@ -123,20 +124,21 @@ def KDXF_ttsFile(path):
                         d=KDXF_tts(co)
 
         return
-def KDXF_ttsWbyW(fpath,split='、'):
-        f=open(fpath,encoding='utf8')
-        txt=f.readlines()
-        f.close()
+
+rc=re.compile('[a-zA-Z\d\(\)\）\）]')
+#rcc=re.compile('\(\)\（\）')
+
+def KDXF_ttsWbyW(fpath):
+        txt=open(fpath,encoding='utf8').readlines()
         for line in txt:
-                if len(line.strip())>0:
-                        dd=line.split(split)
-                        dd=[i.strip() for i in dd if len(i.strip())>0]
-                        if len(dd)>0:
-                                for w in dd:
-                                        KDXF_tts(w)
-                                        time.sleep(0.2)
-                        else:
-                                print('List is empty')
+                line=line.strip()
+                if len(line)>0:
+                        dd=re.split(',|，',line)
+                        for w in dd:
+                                w=rc.sub('',w)
+                                print(w)
+                                KDXF_tts(w)
+                                time.sleep(0.2)
                                         
         return
 

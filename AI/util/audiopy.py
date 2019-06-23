@@ -132,7 +132,7 @@ def audios_to_one(paths,sln=3.5,repeat=1):
         print("Only one file,not to be combine the files")
     return
 #################################################
-def audio_split(sgm,min_sl=300,sth=-40):
+def audio_split(path,min_sl=300,sth=-40):
     """
     sgm:AudioSegment 对象
     silence_thresh=-70 # 小于-70dBFS以下的为静默 
@@ -141,8 +141,25 @@ def audio_split(sgm,min_sl=300,sth=-40):
     abandon_chunk_len=500 # 放弃小于500毫秒的段 
     joint_silence_len=1300 # 段拼接时加入1300毫秒间隔用于断句
     """
-    chunks=split_on_silence(sgm,min_silence_len=min_sl,silence_thresh=sth)
-    return chunks
+    if os.path.isfile(path):
+        dp=os.path.splitext(path)
+        if os.path.splitext(path)[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+            sgm=AudioSegment.from_file(path,format=dp[1].replace('.',''))
+            chunks=split_on_silence(sgm,min_silence_len=min_sl,silence_thresh=sth)
+            return chunks
+        else:
+            print('%s is not audio file,Please input audio file....'%path)
+            sys.exit()
+
+    elif isinstance(path,pydub.audio_segment.AudioSegment):
+        #sgm=path
+        chunks=split_on_silence(path,min_silence_len=min_sl,silence_thresh=sth)
+        return chunks
+    else:
+        print('Input is not audio file or AudioSegment')
+        sys.exit()
+        
+            
 ####################################################
 def audio_split_combine(fpath,start='00:00:00',end='00:00:02',min_sl=300,sth=-40,duration=4):
     """
