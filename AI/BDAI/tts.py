@@ -6,11 +6,13 @@ from aip import AipSpeech
 import requests
 import json
 import os
+import sys
 import datetime as dt
 from AI.util.textsplit import BD_text_split
 from pydub import AudioSegment
 from pydub.playback import play
 from AI.util.audiopy import audio2list
+from AI.util.pyrec import a2pcm
 import time
 import re
 try:
@@ -100,14 +102,30 @@ def BD_audio2textAll(filePath):
     filePath:为音频文件的 地址。str
     """
     files=audio2list(filePath,duration=59,pcm=True)
-    dicts={}
+    text=[]
     #import json
     for i,f in enumerate(files):
-        dicts[i]=BD_audio2text(f)
+        ds=BD_audio2text(f)
+        text.append(ds.get('result','None')[0])
         os.remove(f)
 
-    return dicts
+    return text
 
+def BD_audio2textAllv2(wav_file,min_sl=300,sth=-40,duration=60):
+    pf=a2pcm(wav_file,min_sl=min_sl,sth=sth,duration=duration)
+    text=[]
+    ofile=os.path.splitext(wav_file)[0]
+    for pff in pf:
+        print(pff)
+        #ds=client.asr(pff, 'pcm', 16000, {'dev_pid': '1536',})
+
+        ds=BD_audio2text(pff)
+        text.append(ds.get('result','None')[0])
+        os.remove(pff)
+    import shutil
+    shutil.rmtree(ofile)
+    return text
+    
 def BD_textTaudio(text,vol=15,per=1,spd=3,pit=5,aue=6,path='',pl=False):
     """
     tex:        合成的文本，使用UTF-8编码。小于512个中文字或者英文数字。
@@ -218,4 +236,5 @@ if __name__=="__main__":
 我报路长嗟日暮，学诗漫有惊人句。九万里风鹏正举。风休住，蓬舟吹取三山去！'''
     #yu=BD_textTaudio(uu)
     #os.system('mplayer auido.mp3')
+    df=BD_audio2textAll(sys.argv[1])
     pass

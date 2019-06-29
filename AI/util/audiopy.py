@@ -6,6 +6,7 @@ import time
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 import pydub
+audiolist=['.mp3','.wav','.flv','.ogg','.raw','.m4a']
 ##########################################
 def audiosn_to_one(paths,sln=3.5,ntotal='max',repeat=1):
     """
@@ -23,19 +24,19 @@ def audiosn_to_one(paths,sln=3.5,ntotal='max',repeat=1):
         for path in paths:
             if os.path.isfile(path):
                 dp=os.path.splitext(path)
-                if dp[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+                if dp[1] in audiolist:
                     sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
 
     elif os.path.isdir(paths):
         for root,dirs,files in os.walk(paths):
             for f in files:
                 dp=os.path.splitext(f)
-                if dp[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+                if dp[1] in audiolist:
                     print(f)
                     sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
 
     elif os.path.isfile(paths):
-        if os.path.splitext(path)[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+        if os.path.splitext(path)[1] in audiolist:
             sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
 
     else:
@@ -92,19 +93,19 @@ def audios_to_one(paths,sln=3.5,repeat=1):
         for path in paths:
             if os.path.isfile(path):
                 dp=os.path.splitext(path)
-                if dp[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+                if dp[1] in audiolist:
                     sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
 
     elif os.path.isdir(paths):
         for root,dirs,files in os.walk(paths):
             for f in files:
                 dp=os.path.splitext(f)
-                if dp[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+                if dp[1] in audiolist:
                     print(f)
                     sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
 
     elif os.path.isfile(paths):
-        if os.path.splitext(path)[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+        if os.path.splitext(path)[1] in audiolist:
             sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
 
     else:
@@ -143,7 +144,7 @@ def audio_split(path,min_sl=300,sth=-40):
     """
     if os.path.isfile(path):
         dp=os.path.splitext(path)
-        if os.path.splitext(path)[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+        if os.path.splitext(path)[1] in audiolist:
             sgm=AudioSegment.from_file(path,format=dp[1].replace('.',''))
             chunks=split_on_silence(sgm,min_silence_len=min_sl,silence_thresh=sth)
             return chunks
@@ -173,7 +174,7 @@ def audio_split_combine(fpath,start='00:00:00',end='00:00:02',min_sl=300,sth=-40
     """
     if isinstance(fpath,str) and os.path.isfile(fpath):
         mf=os.path.splitext(fpath)
-        if mf[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+        if mf[1] in audiolist:
             Ag=AudioSegment.from_file(fpath,format=mf[1].replace('.',''))
     elif isinstance(fpath,pydub.audio_segment.AudioSegment):
         Ag=fpath
@@ -235,7 +236,7 @@ def new_from_audio(fpath,start='00:00:00',end='00:00:20'):
     if isinstance(fpath,str):
         if os.path.isfile(fpath):
             mf=os.path.splitext(fpath)
-            if mf[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+            if mf[1] in audiolist:
                 Ag=AudioSegment.from_file(fpath,format=mf[1].replace('.',''))
 
     elif isinstance(fpath,pydub.audio_segment.AudioSegment):
@@ -331,7 +332,7 @@ def audio2list(fpath,duration=59,pcm=False):
     if isinstance(fpath,str):
         if os.path.isfile(fpath):
             paths=os.path.splitext(fpath)
-            if paths[1] in ['.mp3','.wav','.flv','.ogg','.raw']:
+            if paths[1] in audiolist:
                 Ag=AudioSegment.from_file(fpath,format=paths[1].replace('.',''))
                 path=paths[0]
 
