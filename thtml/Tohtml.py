@@ -4,8 +4,7 @@
 import sys,os,time
 import re
 from thtml.cfg import title,endd,title1,title2
-#from thtml.makehtmlbook import getfilelist
-from thtml.utilth import make_Mulu_content
+from thtml.utilth import (GFlist,make_Mulu_content)
 from util.ch2num import ChNumToArab
 
 
@@ -218,6 +217,7 @@ def C2html_AllinOnev1(txtpath=None,output='output.html',regrex1=re.compile('\d{1
             os.remove(out)         
         os.rename('output.html',out)
     return
+####################################################
 def C2html_AllinOne(txtpath=None,regrex1=re.compile('\d{1,3}'),index=True):
     """
     将目录txtpath下的txt文件内容全部转到output.html文件中
@@ -232,6 +232,25 @@ def C2html_AllinOne(txtpath=None,regrex1=re.compile('\d{1,3}'),index=True):
         files=[i[1] for i in ss]
     elif os.path.isdir(txtpath):
         ss=getfilelist(txtpath,regrex1)
+        files=[i[1] for i in ss]
+
+    C2html(files,index=index)
+    return
+####################################################
+def C2html_AllinOneGF(txtpath=None,regrex1=None,Research=None,index=True):
+    """
+    将目录txtpath下的txt文件内容全部转到output.html文件中
+    px:文中排序的基准。
+    """
+    files=[]
+    if isinstance(txtpath,list):
+        files.extend(txtpath)
+    elif txtpath is None:
+        txtpath=os.getcwd()
+        ss=GFlist(txtpath,regrex1=regrex1,research=Research)
+        files=[i[1] for i in ss]
+    elif os.path.isdir(txtpath):
+        ss=GFlist(txtpath,regrex1=regrex1,research=Research)
         files=[i[1] for i in ss]
 
     C2html(files,index=index)

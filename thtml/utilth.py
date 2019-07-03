@@ -3,11 +3,20 @@
 import os
 import sys
 import re
+import util.ch2num as ut
 
+
+cc=re.compile('[，、:-》.《—_;；〈〉<>【】（）()\s]')
 def GFlist(path,regrex1=None,research=None):
     """
     regrex1:为re.compile 的类型    
     """
+    rs=[]
+    if isinstance(research ,list):
+        rs.extend(research)
+    elif isinstance(research ,str):
+        rs.append(research)
+        
     ss={}
     for root,ds,fs in os.walk(path):
         for f in fs:
@@ -15,26 +24,28 @@ def GFlist(path,regrex1=None,research=None):
             if regrex1 is not None:
                 #print('ok....1')
                 if os.path.splitext(f)[1] in ['.txt']:
-                    
-                    if len(re.findall(regrex1,f))>0:
-                        num=int((regrex1.findall(f)[0]))
+                    i1=[i for i in regrex1.findall(f) if len(i)>0]
+                    i2=[i for i in regrex1.findall(ut.ChNumToArab(f)) if len(i)>0]
+                    if len(i1)>0:
+                        num=int(i1[0])
                         ss[num]=os.path.abspath(os.path.join(root,f))
-                    elif len([i for i in regrex1.findall(ChNumToArab(f)) if len(i)>0])>0:
-                        num= int(regrex1.findall(ChNumToArab(f))[0])
+                    elif len(i2)>0:
+                        num= int(i2[0])
                         ss[num]=os.path.abspath(root+'/'+f)
                     
                     dd=sorted(ss.items(),key=lambda item:item[0])
             else:
                 #print('ok ......2')
-                
-                ss[f]=os.path.abspath(root+'/'+f)
+                num=cc.sub('',f).replace('&nbsp','')
+                ss[num]=os.path.abspath(root+'/'+f)
                 dd=sorted(ss.items(),key=lambda item:item[0])
 
     if (regrex1 is None) and (research is not None):
         ddf={}
         for k,v in dd:
-            if research in k:
-                ddf[k]=v
+            for rsch in rs:
+                if rsch in k:
+                    ddf[k]=v
 
         if len(ddf)>0:
             dd=sorted(ddf.items(),key=lambda item:item[0])
@@ -162,4 +173,5 @@ def make_Mulu_content(files,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile
     return tb,ctt
 
 if __name__=="__main__":
-   tb,ct= make_Mulu_content(sys.argv[1])
+   #tb,ct= make_Mulu_content(sys.argv[1])
+   pass
