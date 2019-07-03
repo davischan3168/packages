@@ -7,6 +7,7 @@ import time
 from xpinyin import  Pinyin
 import subprocess
 import util.ch2num as ut
+from thtml.utilth import GFlist
 p=Pinyin()
 
 title=r"""
@@ -26,7 +27,7 @@ footskip=0cm
 \linespacing{1.52}%
 \pagestyle{empty}
 \usepackage{xpinyin}
-\setmainfont{CMU Serif}
+%\setmainfont{CMU Serif}
 \setCJKmainfont{SimSun}
 %\include{setting}
 %\include{pagesign}
@@ -48,7 +49,7 @@ left=0.2cm,right=0.2cm,foot=0cm, nohead,nofoot}%
 \linespacing{1.52}%
 \pagestyle{empty}
 \usepackage{xpinyin}
-\setmainfont{CMU Serif}
+%\setmainfont{CMU Serif}
 \setCJKmainfont{SimSun}
 %\include{setting}
 %\include{pagesign}
@@ -78,7 +79,7 @@ footskip=0cm
 \linespacing{1.52}%
 \pagestyle{empty}
 \usepackage{xpinyin}
-\setmainfont{CMU Serif}
+%\setmainfont{CMU Serif}
 \setCJKmainfont{SimSun}
 %\include{setting}
 %\include{pagesign}
@@ -262,7 +263,100 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
 
     return
 
+###############################################################################3
+def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',Research=None):
+    txt_files={}
+    rsch=[]
+
+    if isinstance(Research,str):
+        rsch.append(Research)
+    elif isinstance(Research,list):
+        rsch.extend(Research)
+        
     
+    for root,dirs,files in os.walk(DirName):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.txt']:
+                if sys.platform.startswith('win'):
+                    rt1=root.split('\\')
+                    root='/'.join(rt1)
+                pf=root+'/'+f
+                #print(pf)
+                if num is not None:
+                    fnum=num.findall(ut.ChNumToArab(f))
+                    if len(fnum)==0:
+                         txt_files[f]=Singal_input(pf,pyin)
+                    else:
+                         txt_files[fnum[0].zfill(3)]=Singal_input(pf,pyin)
+                elif (num is None) and (Research is not None):
+                    for i in rsch:
+                        if i in f:
+                            txt_files[f]=Singal_input(pf,pyin)
+                else:
+                     txt_files[f]=Singal_input(pf,pyin)       
+
+
+
+
+    if len(txt_files)>0:
+        txt_files1=sorted(txt_files.items(),key=lambda txt_files:txt_files[0])
+
+    #print(txt_files1)
+    ##########################3
+    if Total=='max':
+        OutFile1=OutFile+'.tex'
+        fl=open(OutFile1,'w',encoding='utf8')
+        fl.write(latexs[mtype]+'\n\n')        
+        for f in txt_files1:
+            fl.write('\input{%s}'%f[1])
+            fl.write(r'\newpage')
+            #fl.write('\n\n')
+        
+        fl.write(end)
+        fl.close()
+        os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+        os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
+        _removef(OutFile1)
+        ###########################3
+    elif isinstance(Total,int):
+        for f in txt_files1:
+            txp=[txt_files1[i:i+Total] for i in range(0,len(txt_files),Total)]
+            fn=1
+            for ff in txp:
+                OutFile1=OutFile+'_%s.tex'%str(fn).zfill(2)
+                fl=open(OutFile1,'w',encoding='utf8')
+                fl.write(latexs[mtype]+'\n\n')
+                for f in ff:
+                    fl.write('\input{%s}'%f[1])
+                    fl.write(r'\newpage')
+                    #fl.write('\n\n')
+        
+                fl.write(end)
+                fl.close()
+                os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+                os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+                _removef(OutFile1)
+                
+                fn +=1
+        
+    else:
+        print('Total is max out int, please input the right parameter.')
+
+
+    for root,dirs,files in os.walk(DirName):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.tex']:
+                os.remove('%s'%os.path.abspath(root+'/'+f))
+                pass
+
+    return
+
+    
+
     
 
 if __name__=="__main__":
