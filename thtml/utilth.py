@@ -7,9 +7,11 @@ import util.ch2num as ut
 
 
 cc=re.compile('[，、:-》.《—_;；〈〉<>【】（）()\s]')
-def GFlist(path,regrex1=None,research=None):
+def GFlist(path,regrex1=None,research=None,startw=None):
     """
-    regrex1:为re.compile 的类型    
+    regrex1:为re.compile 的类型
+    startw:re.compile类型
+    research: str or list
     """
     rs=[]
     if isinstance(research ,list):
@@ -51,6 +53,18 @@ def GFlist(path,regrex1=None,research=None):
             dd=sorted(ddf.items(),key=lambda item:item[0])
         else:
             print('没有关于 "%s" 的文件'%research)
+
+    if (regrex1 is None) and (startw is not None):
+        dff={}
+        for k,v in dd:
+            if startw.match(k) is not None:
+                dff[k]=v
+                
+        if len(dff)>0:
+            dd=sorted(dff.items(),key=lambda item:item[0])
+        else:
+            print('没有关于 "%s" 的文件'%research)                
+                
     return dd
 
 def make_Mulu_content(files,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=True):

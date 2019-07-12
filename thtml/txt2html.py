@@ -3,7 +3,7 @@
 
 import sys,os,time
 import re
-from thtml.utilth import make_Mulu_content
+from thtml.utilth import (make_Mulu_content,GFlist)
 
 cstr=['，','。','？','！','；','：']
 #temp = "想做/ 兼_职/学生_/ 的 、加,我Q：  1 5.  8 0. ！！？？  8 6 。0.  2。 3     有,惊,喜,哦"  
@@ -175,6 +175,31 @@ def txt2htmldir(path=None,func=txt2htmlv1,px='\d{1,3}',index=False):
         func(dirsett,index=index)
     else:
         func(dirset,index=index)
+    return
+#############################
+def txt2htmlGF(path=None,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),ind=True, regrex1=None,Research=None,index=True,Startw=None):
+    """
+    path:文件夹的名称,若没有输入参数，则默认为None，即当前目录。
+    func:txt2html_odir,形成一个个单独的文件，文件名与源文件相同，并保存在源文件的目录下。
+        :txt2htmlv1，合并成一个文件，文件保存在当前工作目录下，输出为output.html。
+    px: 按预先定义的方式进行排序
+    path:所选择的文件夹
+    """
+
+    files=[]
+    if isinstance(path,list):
+        files.extend(path)
+    elif os.path.isfile(path):
+        files.append(path)
+    elif path is None:
+        txtpath=os.getcwd()
+        ss=GFlist(path,regrex1=regrex1,research=Research,startw=Startw)
+        files=[i[1] for i in ss]
+    elif os.path.isdir(path):
+        ss=GFlist(path,regrex1=regrex1,research=Research,startw=Startw)
+        files=[i[1] for i in ss]
+
+    txt2htmlv1(files,m1=m1,m2=m2,m3=m3,index=ind)
     return
 ##########################
 def txt2htmlall(pathname,mformat='AIO',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=True,Current=False):

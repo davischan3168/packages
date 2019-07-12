@@ -264,7 +264,7 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
     return
 
 ###############################################################################3
-def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',Research=None):
+def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',Research=None,startw=None):
     txt_files={}
     rsch=[]
 
@@ -292,6 +292,10 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
                     for i in rsch:
                         if i in f:
                             txt_files[f]=Singal_input(pf,pyin)
+                elif (num is None) and (startw is not None):
+                    if startw.match(f) is not None:
+                        txt_files[f]=Singal_input(pf,pyin)
+                    
                 else:
                      txt_files[f]=Singal_input(pf,pyin)       
 
@@ -301,6 +305,9 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
     if len(txt_files)>0:
         txt_files1=sorted(txt_files.items(),key=lambda txt_files:txt_files[0])
 
+    else:
+        print('No files 适合条件')
+        sys.exit()
     #print(txt_files1)
     ##########################3
     if Total=='max':

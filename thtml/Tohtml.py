@@ -237,7 +237,7 @@ def C2html_AllinOne(txtpath=None,regrex1=re.compile('\d{1,3}'),index=True):
     C2html(files,index=index)
     return
 ####################################################
-def C2html_AllinOneGF(txtpath=None,regrex1=None,Research=None,index=True):
+def C2html_AllinOneGF(txtpath=None,regrex1=None,Research=None,index=True,Startw=None):
     """
     将目录txtpath下的txt文件内容全部转到output.html文件中
     px:文中排序的基准。
@@ -247,10 +247,10 @@ def C2html_AllinOneGF(txtpath=None,regrex1=None,Research=None,index=True):
         files.extend(txtpath)
     elif txtpath is None:
         txtpath=os.getcwd()
-        ss=GFlist(txtpath,regrex1=regrex1,research=Research)
+        ss=GFlist(txtpath,regrex1=regrex1,research=Research,startw=Startw)
         files=[i[1] for i in ss]
     elif os.path.isdir(txtpath):
-        ss=GFlist(txtpath,regrex1=regrex1,research=Research)
+        ss=GFlist(txtpath,regrex1=regrex1,research=Research,startw=Startw)
         files=[i[1] for i in ss]
 
     C2html(files,index=index)
@@ -278,6 +278,6 @@ def C2html_OnebyOne(txtpath,index=True):
 
     
 if __name__=="__main__":
-    C2html_AllinOne(sys.argv[1],regrex1=None)
+    #C2html_AllinOne(sys.argv[1],regrex1=None)
     pass
             

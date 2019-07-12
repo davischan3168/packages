@@ -6,6 +6,7 @@ import glob
 import os
 import sys
 import re
+from time import time
 from AI.BDAI.ocr import BD_jsonTtext as jsontext
 
 
@@ -66,6 +67,7 @@ def pic2pdf(path,cc=None):
                 dff.append(img)
 
     if len(dff)>0:
+        path1='allimages_%s.pdf'%int(time()*100)
         if cc is not None:
             dfile={}
             for img in dff:
@@ -76,15 +78,16 @@ def pic2pdf(path,cc=None):
                 else:
                     print('The number of ',num,'is more than one.')
             dd=sorted(dfile.items(),key=lambda item:item[0])
+            
             for img in dd:
                 print(img[1],'....1......')
                 imgdoc=fitz.open(img[1])
                 pdfbytes=imgdoc.convertToPDF()
                 imgpdf=fitz.open("pdf", pdfbytes)
                 doc.insertPDF(imgpdf)
-            if os.path.exists('allimages.pdf'):
-                os.remove("allimages.pdf")
-            doc.save("allimages.pdf")
+            if os.path.exists(path1):
+                os.remove(path1)
+            doc.save(path1)
             doc.close()
                 
 
@@ -95,9 +98,9 @@ def pic2pdf(path,cc=None):
                 pdfbytes=imgdoc.convertToPDF()
                 imgpdf=fitz.open("pdf", pdfbytes)
                 doc.insertPDF(imgpdf)
-            if os.path.exists('allimages.pdf'):
-                os.remove("allimages.pdf")
-            doc.save("allimages.pdf")
+            if os.path.exists(path1):
+                os.remove(path1)
+            doc.save(path1)
             doc.close()
 
     else:
