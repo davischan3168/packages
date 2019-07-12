@@ -177,7 +177,7 @@ def txt2htmldir(path=None,func=txt2htmlv1,px='\d{1,3}',index=False):
         func(dirset,index=index)
     return
 #############################
-def txt2htmlGF(path=None,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),ind=True, regrex1=None,Research=None,index=True,Startw=None):
+def txt2htmlGF(path=None,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),ind=True, regrex1=None,Research=None,Startw=None):
     """
     path:文件夹的名称,若没有输入参数，则默认为None，即当前目录。
     func:txt2html_odir,形成一个个单独的文件，文件名与源文件相同，并保存在源文件的目录下。
