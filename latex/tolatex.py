@@ -6,8 +6,10 @@ import os
 import time
 from xpinyin import  Pinyin
 import subprocess
+import shutil
 import util.ch2num as ut
 from thtml.utilth import GFlist
+from thtml.abstract import (abssplit,abstract,absfile,absSPP)
 p=Pinyin()
 
 title=r"""
@@ -361,10 +363,192 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
                 pass
 
     return
+###############################################
+def MainsAbs(txtpath,func=abssplit,OutFile='Mainabs',mtype='pad',pyin=False,Total='max',regrex1=None,Research=None,Startw=None,rc=re.compile('\裁判要点\W*(.*?)\W*相关法条'),p1=re.compile('裁判要点'),p2=re.compile('相关法条')):
+    txt_files={}
+    rsch=[]
 
-    
+    if isinstance(Research,str):
+        rsch.append(Research)
+    elif isinstance(Research,list):
+        rsch.extend(Research)    
 
+    files=[]
+    if isinstance(txtpath,list):
+        files.extend(txtpath)
+    elif txtpath is None:
+        txtpath=os.getcwd()
+        ss=GFlist(txtpath,regrex1=regrex1,research=Research,startw=Startw)
+        files=[i[1] for i in ss]
+    elif os.path.isdir(txtpath):
+        ss=GFlist(txtpath,regrex1=regrex1,research=Research,startw=Startw)
+        files=[i[1] for i in ss]
+ 
+    tdir='temp_dir'
+    if not os.path.exists(tdir):
+        os.mkdir(tdir)
+    for f in files:
+        print(f)
+        if func.__name__=='abstract':
+            bn=os.path.basename(f)
+            nf=os.path.join(tdir,bn)
+            #print(nf)
+            try:
+                text=func(f,rc=rc)
+                #print(text)
+                with open(nf,'w',encoding='utf8') as gf:
+                    gf.write(text)
+                #Tfile.append(f[0],nf)
+            except:
+                print('没有相应的内容for abstract')
+                pass
+        elif func.__name__=='abssplit':
+            bn=os.path.basename(f)
+            nf=os.path.join(tdir,bn)
+            try:
+                text=func(f,p1=p1,p2=p2)
+                #print(text)
+                with open(nf,'w',encoding='utf8') as gf:
+                    gf.write(text)
+                #Tfile[f[0]]=nf
+                #Tfile.append(f[0],nf)
+            except:
+                print('没有相应的内容for abssplit')
+                pass     
+    ss=GFlist(tdir,regrex1=regrex1)
+    for i in ss:
+        txt_files[i[0]]=Singal_input(i[1],pyin)
     
+    if len(txt_files)>0:
+        txt_files1=sorted(txt_files.items(),key=lambda txt_files:txt_files[0])
+
+    else:
+        print('No files 适合条件')
+        sys.exit()
+    ##########################3
+    if Total=='max':
+        OutFile1=OutFile+'.tex'
+        fl=open(OutFile1,'w',encoding='utf8')
+        fl.write(latexs[mtype]+'\n\n')        
+        for f in txt_files1:
+            fl.write('\input{%s}'%f[1])
+            fl.write(r'\newpage')
+            #fl.write('\n\n')
+        
+        fl.write(end)
+        fl.close()
+        os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+        os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
+        _removef(OutFile1)
+        ###########################3
+    elif isinstance(Total,int):
+        for f in txt_files1:
+            txp=[txt_files1[i:i+Total] for i in range(0,len(txt_files),Total)]
+            fn=1
+            for ff in txp:
+                OutFile1=OutFile+'_%s.tex'%str(fn).zfill(2)
+                fl=open(OutFile1,'w',encoding='utf8')
+                fl.write(latexs[mtype]+'\n\n')
+                for f in ff:
+                    fl.write('\input{%s}'%f[1])
+                    fl.write(r'\newpage')
+                    #fl.write('\n\n')
+        
+                fl.write(end)
+                fl.close()
+                os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+                os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+                _removef(OutFile1)
+                
+                fn +=1
+        
+    else:
+        print('Total is max out int, please input the right parameter.')
+
+    """
+    for root,dirs,files in os.walk(tdir):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.tex']:
+                os.remove('%s'%os.path.abspath(root+'/'+f))
+                pass"""
+    shutil.rmtree(tdir)
+    return
+
+def MainSpp(path,outdir='itempdit',regrex1=re.compile('检例第(\d*)号'),rc=re.compile('(.*?案\s*（检例第\d*号）)'),p1=re.compile('【要旨】'),p2=re.compile('\【\w*】'),yz=True,OutFile='MainSpp',mtype='pad',pyin=False,Total='max'):  
+
+
+    if outdir=='':
+        outdir='itempdit'
+    absSPP(path=path,tdir=outdir,rc=rc,p1=p1,p2=p2,yz=yz)
+    
+    ss=GFlist(outdir,regrex1=regrex1)
+    txt_files={}
+    for i in ss:
+        txt_files[i[0]]=Singal_input(i[1],pyin)
+    
+    if len(txt_files)>0:
+        txt_files1=sorted(txt_files.items(),key=lambda txt_files:txt_files[0])
+
+    else:
+        print('No files 适合条件')
+        sys.exit()
+    ##########################3
+    if Total=='max':
+        OutFile1=OutFile+'.tex'
+        fl=open(OutFile1,'w',encoding='utf8')
+        fl.write(latexs[mtype]+'\n\n')        
+        for f in txt_files1:
+            fl.write('\input{%s}'%f[1])
+            fl.write(r'\newpage')
+            #fl.write('\n\n')
+        
+        fl.write(end)
+        fl.close()
+        os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+        os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
+        _removef(OutFile1)
+        ###########################3
+    elif isinstance(Total,int):
+        for f in txt_files1:
+            txp=[txt_files1[i:i+Total] for i in range(0,len(txt_files),Total)]
+            fn=1
+            for ff in txp:
+                OutFile1=OutFile+'_%s.tex'%str(fn).zfill(2)
+                fl=open(OutFile1,'w',encoding='utf8')
+                fl.write(latexs[mtype]+'\n\n')
+                for f in ff:
+                    fl.write('\input{%s}'%f[1])
+                    fl.write(r'\newpage')
+                    #fl.write('\n\n')
+        
+                fl.write(end)
+                fl.close()
+                os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+                os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+                _removef(OutFile1)
+                
+                fn +=1
+        
+    else:
+        print('Total is max out int, please input the right parameter.')
+
+    """
+    for root,dirs,files in os.walk(tdir):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.tex']:
+                os.remove('%s'%os.path.abspath(root+'/'+f))
+                pass"""
+    shutil.rmtree(outdir)
+    return
+###########################
 
 if __name__=="__main__":
     #d=Singal_File(sys.argv[1])

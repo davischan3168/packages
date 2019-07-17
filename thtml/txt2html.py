@@ -36,6 +36,8 @@ def _mytitle(txtName):
     elif os.path.isfile(txtName):
         mytitle=os.path.basename(os.path.splitext(txtName)[0])
     elif os.path.isdir(txtName):
+        if txtName.endswith('/'):
+            txtName=txtName[0:-1]
         mytitle=os.path.basename(txtName)
     else:
         mytitle='My Html File'
