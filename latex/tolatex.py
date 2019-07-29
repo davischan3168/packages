@@ -113,43 +113,44 @@ def _removef(outpath):
             os.remove(path)
         except Exception as e:
             pass
+            
     return
 
 def Singal_File(inFile,mtype='article',pyin=False):
-    #dirname=os.path.dirname(inFile)
-    path=os.path.abspath(inFile)
-    name=os.path.basename(path).split('.')[0].replace('&nbsp','')
-    outFile=p.get_initials(os.path.splitext(path)[0],'')+'.tex'
-    
-    f=open(inFile,'r',encoding='utf8')
-    content=f.readlines()
-    f.close()
-
-    cts=[li.strip() for li in content if len(li.strip())>0]
-    cts='\n\n'.join(cts).replace('&nbsp','')
-    cts=re.sub(r'%',r'\%',cts)
-
+    txt_files={}
+    name=os.path.basename(inFile).split('.')[0].replace('&nbsp','')
+    outFile='SignalFile.tex'
+    txt_files[name]=Singal_input(inFile,pyin=pyin)
     fl=open(outFile,'w',encoding='utf8')
     fl.write(latexs[mtype]+'\n\n')
-    fl.write(section%name)
     if pyin:
         fl.write('\n\n'+r'\begin{pinyinscope}')
-    fl.write('\n\n'+cts+'\n\n')
+
+    fl.write('\input{%s}'%txt_files[name])
+    
     if pyin:
         fl.write('\n\n'+r'\end{pinyinscope}')  
     fl.write(end)
     fl.close()
-    os.system('xelatex -no-pdf -interaction=nonstopmode %s' %oOutFile)
-    os.system('xelatex -interaction=nonstopmode %s' %oOutFile)
-    _removef(outpath)
+    os.system('xelatex -no-pdf -interaction=nonstopmode %s' %outFile)
+    os.system('xelatex -interaction=nonstopmode %s' %outFile)
+
+    for root,dirs,files in os.walk(os.getcwd()):
+        for f in files:
+            if os.path.splitext(f)[1] in ['.aux','.log','.out','.xdv','.tex']:
+                os.remove('%s'%os.path.abspath(root+'/'+f))
+                pass    
+
     return
 ###########################################
 def Singal_input(InFile,pyin=False):
     path=os.path.abspath(InFile)
     dname=os.path.dirname(path)
-    
+    ss=re.compile('第\w{1,3}[章编]')
+    sss=re.compile('第\w{1,3}[节]')
     name=os.path.splitext(os.path.basename(path))[0].replace('_','').replace(' ','').replace('·','').replace('，','').replace('&nbsp','').replace(';','').replace('〈','').replace('〉','').strip()
     #print(name)
+    
     if len(name)<12:
         outFile=p.get_pinyin(name)+'.tex'
     else:
@@ -159,15 +160,26 @@ def Singal_input(InFile,pyin=False):
         rt1=dname.split('\\')
         dname='/'.join(rt1)
     outFile2=dname+'/'+outFile
-    
-    f=open(InFile,'r',encoding='utf8')
-    content=f.readlines()
-    f.close()
+
+    try:
+        f=open(InFile,'r',encoding='utf8')
+        content=f.readlines()
+        f.close()
+    except:
+        f=open(InFile,'r',encoding='gbk')
+        content=f.readlines()
+        f.close()        
 
     cts=[]
     for li in content:
         if li.strip() in ['裁判要点','基本案情','裁判结果','裁判理由','相关法条','【关键词】','【诉讼过程】','【基本案情】','【抗辩理由】','【案件结果】','【要旨】','【指导意义】','【相关法律规定】']:
             cts.append(r'\subsection{%s}'%li.strip())
+        elif ss.match(li):
+            cts.append(r'\subsection{%s}'%li.strip())
+        elif sss.match(li):
+            cts.append(r'\subsubsection{%s}'%li.strip())
+        elif re.match('\w{1,3}、',li):
+            cts.append(r'\subsection{%s}'%li.strip())               
         else:
             nl=li.strip()
             if len(nl)>0:
@@ -247,8 +259,6 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
                 fl.close()
                 os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
                 os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
                 _removef(OutFile1)
                 
                 fn +=1
@@ -325,8 +335,6 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
         fl.close()
         os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
         os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
         _removef(OutFile1)
         ###########################3
     elif isinstance(Total,int):
@@ -346,8 +354,6 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
                 fl.close()
                 os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
                 os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
                 _removef(OutFile1)
                 
                 fn +=1
@@ -439,8 +445,6 @@ def MainsAbs(txtpath,func=abssplit,OutFile='Mainabs',mtype='pad',pyin=False,Tota
         fl.close()
         os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
         os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
         _removef(OutFile1)
         ###########################3
     elif isinstance(Total,int):
@@ -460,8 +464,6 @@ def MainsAbs(txtpath,func=abssplit,OutFile='Mainabs',mtype='pad',pyin=False,Tota
                 fl.close()
                 os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
                 os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
                 _removef(OutFile1)
                 
                 fn +=1
@@ -510,8 +512,6 @@ def MainSpp(path,outdir='itempdit',regrex1=re.compile('检例第(\d*)号'),rc=re
         fl.close()
         os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
         os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
         _removef(OutFile1)
         ###########################3
     elif isinstance(Total,int):
@@ -531,8 +531,6 @@ def MainSpp(path,outdir='itempdit',regrex1=re.compile('检例第(\d*)号'),rc=re
                 fl.close()
                 os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
                 os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-                #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-                #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
                 _removef(OutFile1)
                 
                 fn +=1

@@ -30,20 +30,28 @@ def _read_doc(path):
     """
     读取doc文件,path是doc文件的路径。
     """
-    temp='text.txt'
+    #temp='text.txt'
+    path=os.path.abspath(path)
     if sys.platform=='win32':
+        
         word=Dispatch('Word.Application')
+        word.Visible = 0
         doc = word.Documents.Open(path)
-        doc.SaveAs(temp, 4)
-        doc.Close()
+        fullText=[]
+        paras=doc.paragraphs
+        for p in paras:
+            fullText.append(p.Range.Text)
+        content='\n'.join(fullText)        
+        #doc.SaveAs(temp, 4)
+        #doc.Close()
 
-        f = open(temp,'r')
-        content= f.read()
-        f.close()
+        #f = open(temp,'r')
+        #content= f.read()
+        #f.close()
         
-        os.remove(temp)
+        #os.remove(temp)
         
-        content = content.replace(" ","")
+        #content = content.replace(" ","")
         #content=re.findall(r"[\u4e00-\u9fa5]+",content)
         #content='\n'.join(content)
         return content
@@ -244,4 +252,5 @@ if __name__=="__main__":
     #dst = 'qyx'
     #GBK_2_UTF8(src,dst)
     #dd=
-    pylatex(sys.argv[1],sys.argv[2],'article')
+    #pylatex(sys.argv[1],sys.argv[2],'article')
+    pass

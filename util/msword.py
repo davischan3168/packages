@@ -20,7 +20,7 @@ except:
 def _read_doc(path):
     """
     读取doc文件,path是doc文件的路径。
-    """
+    
     temp='text.txt'
     path=os.path.abspath(path)
     if sys.platform=='win32':
@@ -38,6 +38,18 @@ def _read_doc(path):
         content = content.replace(" ","")
         #content=re.findall(r"[\u4e00-\u9fa5]+",content)
         #content='\n'.join(content)
+    """
+    path=os.path.abspath(path)
+    if sys.platform=='win32':
+        
+        word=Dispatch('Word.Application')
+        word.Visible = 0
+        doc = word.Documents.Open(path)
+        fullText=[]
+        paras=doc.paragraphs
+        for p in paras:
+            fullText.append(p.Range.Text)
+        content='\n'.join(fullText)          
         return content
     
     elif sys.platform=='linux':
@@ -63,12 +75,13 @@ def _read_docx(path):
     content='\n'.join(fullText)
     return content
 
-def Doc_To_Docx(path):
+def Doc2Docx(path):
     
     path=os.path.abspath(path)
     name=path+'x'
     if sys.platform=='win32':
         word=Dispatch('Word.Application')
+        word.Visible = 0
         doc = word.Documents.Open(path)
         
         if os.path.exists(name):
