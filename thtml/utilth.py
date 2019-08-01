@@ -4,7 +4,7 @@ import os
 import sys
 import re
 import util.ch2num as ut
-
+from mswdoc.docx2txt import msdoc2text
 
 cc=re.compile('[，、:-》.《—_;；〈〉<>【】（）()\s]')
 def GFlist(path,regrex1=None,research=None,startw=None):
@@ -18,29 +18,35 @@ def GFlist(path,regrex1=None,research=None,startw=None):
         rs.extend(research)
     elif isinstance(research ,str):
         rs.append(research)
+    pathlist=[]
+    if isinstance(path,list):
+        pathlist.extend(path)
+    elif isinstance(path,str):
+        pathlist.append(path)
         
     ss={}
-    for root,ds,fs in os.walk(path):
-        for f in fs:
-            #print(f)
-            if regrex1 is not None:
-                #print('ok....1')
-                if os.path.splitext(f)[1] in ['.txt']:
-                    i1=[i for i in regrex1.findall(f) if len(i)>0]
-                    i2=[i for i in regrex1.findall(ut.ChNumToArab(f)) if len(i)>0]
-                    if len(i1)>0:
-                        num=int(i1[0])
-                        ss[num]=os.path.abspath(os.path.join(root,f))
-                    elif len(i2)>0:
-                        num= int(i2[0])
-                        ss[num]=os.path.abspath(root+'/'+f)
+    for path in pathlist:
+        for root,ds,fs in os.walk(path):
+            for f in fs:
+                #print(f)
+                if regrex1 is not None:
+                    #print('ok....1')
+                    if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
+                        i1=[i for i in regrex1.findall(f) if len(i)>0]
+                        i2=[i for i in regrex1.findall(ut.ChNumToArab(f)) if len(i)>0]
+                        if len(i1)>0:
+                            num=int(i1[0])
+                            ss[num]=os.path.abspath(os.path.join(root,f))
+                        elif len(i2)>0:
+                            num= int(i2[0])
+                            ss[num]=os.path.abspath(root+'/'+f)
                     
+                        dd=sorted(ss.items(),key=lambda item:item[0])
+                else:
+                    #print('ok ......2')
+                    num=cc.sub('',f).replace('&nbsp','')
+                    ss[num]=os.path.abspath(root+'/'+f)
                     dd=sorted(ss.items(),key=lambda item:item[0])
-            else:
-                #print('ok ......2')
-                num=cc.sub('',f).replace('&nbsp','')
-                ss[num]=os.path.abspath(root+'/'+f)
-                dd=sorted(ss.items(),key=lambda item:item[0])
 
     if (regrex1 is None) and (research is not None):
         ddf={}
@@ -89,14 +95,20 @@ def make_Mulu_content(files,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile
     \n''')
     
     for i,txtName in enumerate(files):
-        try:
-            txt=open(txtName,'r',encoding='utf8')
-            text=txt.readlines()
-        except:
-            txt=open(txtName,'r',encoding='gbk')
-            text=txt.readlines()            
-        txt.close()
-        
+        tem=os.path.splitext(txtName)
+        if tem[1].lower() in ['.txt']:
+            try:
+                txt=open(txtName,'r',encoding='utf8')
+                text=txt.readlines()
+            except:
+                txt=open(txtName,'r',encoding='gbk')
+                text=txt.readlines()            
+            txt.close()
+        elif tem[1].lower() in ['.doc','.docx']:
+            text=msdoc2text(path)
+            tl=text.split('\n')
+            text=[i.strip() for i in tl if len(i.strip())>0]
+            
         text=[x.strip() for x in text]
         s='\n'.join(text)
         ss=re.sub(r'\n{1,}',r'\n\n',s)

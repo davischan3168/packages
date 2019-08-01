@@ -179,7 +179,7 @@ def txt2htmldir(path=None,func=txt2htmlv1,px='\d{1,3}',index=False):
         func(dirset,index=index)
     return
 #############################
-def txt2htmlGF(path=None,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),ind=True, regrex1=None,Research=None,Startw=None):
+def txt2htmlGF(path=None,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),ind=True, regrex1=None,search=None,Startw=None):
     """
     path:文件夹的名称,若没有输入参数，则默认为None，即当前目录。
     func:txt2html_odir,形成一个个单独的文件，文件名与源文件相同，并保存在源文件的目录下。
@@ -195,10 +195,10 @@ def txt2htmlGF(path=None,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'
         files.append(path)
     elif path is None:
         txtpath=os.getcwd()
-        ss=GFlist(path,regrex1=regrex1,research=Research,startw=Startw)
+        ss=GFlist(path,regrex1=regrex1,research=search,startw=Startw)
         files=[i[1] for i in ss]
     elif os.path.isdir(path):
-        ss=GFlist(path,regrex1=regrex1,research=Research,startw=Startw)
+        ss=GFlist(path,regrex1=regrex1,research=search,startw=Startw)
         files=[i[1] for i in ss]
 
     txt2htmlv1(files,m1=m1,m2=m2,m3=m3,index=ind)

@@ -68,7 +68,7 @@ title1=r'''<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 
 #<link rel="stylesheet" type="text/css" href="packages/Tohtml/css/worg.css" />
 
-title2='''\n<script type="text/javascript">
+title2=r'''\n<script type="text/javascript">
 <!--/*--><![CDATA[/*><!--*/
  function CodeHighlightOn(elem, id)
  {
@@ -104,7 +104,7 @@ title2='''\n<script type="text/javascript">
 </div>
 '''
 
-endd='''
+endd=r'''
 <div id="postamble">
 
 </div>

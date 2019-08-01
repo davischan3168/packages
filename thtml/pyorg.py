@@ -2,9 +2,13 @@
 # -*-coding:utf-8-*-
 import os,re
 import sys
-from thtml.cfg import title,endd,title1,title2
+from thtml.cfg import title,title1,title2
+#from thtml.cfg import title,endd,title1,title2
 import datetime as dt
 import urllib.parse
+from urllib.request import pathname2url
+from thtml.utilth import GFlist
+
 def write_file(path,r):
     #if 'win'in 
     f=open(path,'a',encoding='utf8')
@@ -56,6 +60,7 @@ def getcsspath():
             p='packages/thtml/css/worg.css'
         else:
             p=os.path.abspath('/media/chen/Davis/python/packages/thtml/css/worg.css')
+    p=pathname2url(p)
     return p
 ##############################################
 def Topyorg(pf):
@@ -87,7 +92,7 @@ def Topyorg(pf):
                 if (files1[1] not in ['.tmp','.tex','.bat','.el','.sh','.lnk','.ini','.py','.org','.gss','._gs','.gsl','.cls'])and  (files1[0] not in ['Thumbs']) and (files[0].startswith('~') is False) :
                     filename=files1[0]
                     #fpath=os.path.join(root,old)
-                    fpath=root+'/'+old
+                    fpath=pathname2url(root+'/'+old)
                     line='''  - [ ]  [[./%s][%s]]\n'''%(fpath,filename)
                     try:
                         write_file(pfname+'_content.org',line)
@@ -96,7 +101,14 @@ def Topyorg(pf):
                         print(e)
     return
 ############################################################
-def Topyhtml(pf):
+def Topyhtml(pf,search=None):
+    schs=[]
+    if search is not None:
+        if isinstance(search,list):
+            schs.extend(search)
+        elif isinstance(search,str):
+            schs.append(search)
+            
     pfname=pf.replace('/','')
     #print(pfname)
     htmlf=pfname+'_content.html'
@@ -130,14 +142,27 @@ def Topyhtml(pf):
                 if (files1[1] not in ['.log','.tmp','.tex','.bat','.el','.sh','.lnk','.ini','.py','.org','.gss','._gs','.gsl','.cls','.pyc'])and (files1[0].startswith('~') is False) and (files1[0].startswith('#') is False):
                     filename=files1[0]
                     #fpath=root+'\\'+old
-                    fpath=os.path.join(root,old)
-                    fpath=urllib.parse.quote(fpath)
-                    line='<li><code>[&#xa0;]</code> <a href=%s>%s</a>\n</li>'%(fpath,filename)
-                    try:
-                        write_file(htmlf,line)
-                        #print(line)
-                    except Exception as e:
-                        print(e)
+                    if len(schs)>0:
+                        for ns in schs:
+                            if ns in filename:
+                                fpath=os.path.join(root,old)
+                                #fpath=urllib.parse.quote(fpath)
+                                fpath=pathname2url(fpath)
+                                line='<li><code>[&#xa0;]</code> <a href=%s>%s</a>\n</li>'%(fpath,filename)
+                                try:
+                                    write_file(htmlf,line)
+                                except Exception as e:
+                                    print(e)
+                    else:
+                        fpath=os.path.join(root,old)
+                        #fpath=urllib.parse.quote(fpath)
+                        fpath=pathname2url(fpath)
+                        line='<li><code>[&#xa0;]</code> <a href=%s>%s</a>\n</li>'%(fpath,filename)
+                        try:
+                            write_file(htmlf,line)
+                        except Exception as e:
+                            print(e)                        
+                        
             write_file(htmlf,r"</ul>"+'\n')
     write_file(htmlf,'</div>\n</body>\n</html>')
             
@@ -179,7 +204,8 @@ def Topyhtmlv0(pf):
                     filename=files1[0]
                     #fpath=root+'\\'+old
                     fpath=os.path.join(root,old)
-                    fpath=urllib.parse.quote(fpath)
+                    #fpath=urllib.parse.quote(fpath)
+                    fpath=pathname2url(fpath)
                     line='<li><code>[&#xa0;]</code> <a href=%s>%s</a>\n</li>'%(fpath,filename)
                     try:
                         write_file(htmlf,line)
@@ -188,9 +214,57 @@ def Topyhtmlv0(pf):
                         print(e)
             write_file(htmlf,r"</ul>"+'\n')
     write_file(htmlf,'</div>\n</body>\n</html>')
-            
-    return    
+    return
+######################################
+def TopyhtmlGF(pf,regrex1=None,search=None,index=True,Startw=None):
+
+    pfname=pf.replace('/','')
+    #print(pfname)
+    htmlf=pfname+'_content.html'
+    p=getcsspath()
+    ll=title+'\n'+title1+ft%p+title2+'\n'
+    if os.path.exists(htmlf):
+        os.remove(htmlf)
+    with open(htmlf,'w',encoding='utf8') as f:
+        f.write(ll)
+        f.write('<div id="content"> \n')
+        f.write('<h1 class="title">%s</h1>\n<ul class="org-ul">\n'%pfname)
+        f.flush()
+    
+
+    files=[]
+    if isinstance(pf,list):
+        files.extend(pf)
+    elif pf is None:
+        txtpath=os.getcwd()
+        ss=GFlist(pf,regrex1=regrex1,research=search,startw=Startw)
+        files=[i[1] for i in ss]
+    elif os.path.isdir(pf):
+        ss=GFlist(pf,regrex1=regrex1,research=search,startw=Startw)
+        files=[i[1] for i in ss]
+
+    with open(htmlf,'w',encoding='utf8') as f:
+        f.write(ll)
+        f.write('<div id="content"> \n')
+        f.write('<h1 class="title">%s</h1>\n<ul class="org-ul">\n'%pfname)
+        f.flush()        
+
+    for ff in files:
+        name=os.path.splitext(os.path.basename(ff))[0]
+        #fpath=urllib.parse.quote(ff)
+        fpath=pathname2url(ff)
+        line='<li><code>[&#xa0;]</code> <a href=%s>%s</a>\n</li>'%(fpath,name)
+        try:
+            write_file(htmlf,line)
+        except Exception as e:
+            print(e)
+        
+    write_file(htmlf,r"</ul>"+'\n')
+    write_file(htmlf,'</div>\n</body>\n</html>')
+    return
+    
 if __name__=="__main__":
-    pf=sys.argv[1]
+    #pf=sys.argv[1]
     #Topyorg(pf)
-    Topyhtml(pf)
+    #Topyhtml(pf)
+    pass

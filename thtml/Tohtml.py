@@ -6,7 +6,8 @@ import re
 from thtml.cfg import title,endd,title1,title2
 from thtml.utilth import (GFlist,make_Mulu_content)
 from util.ch2num import ChNumToArab
-
+from urllib.request import pathname2url
+#from mswdoc.docx2txt import msdoc2text
 
 pp='<p style="word-spacing:10px;line-height:1.5">&emsp;&emsp;%s</p>\n'
 
@@ -20,7 +21,7 @@ def getfilelist(path,regrex1=None,Research=None):
             #print(f)
             if regrex1 is not None:
                 #print('ok....1')
-                if os.path.splitext(f)[1] in ['.txt']:
+                if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
                     
                     if len(re.findall(regrex1,f))>0:
                         num=int((regrex1.findall(f)[0]))
@@ -55,10 +56,10 @@ def C2html(txtpath,output='output.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m
 
     if isinstance(txtpath,list):
         for f in txtpath:
-            if os.path.isfile(f) and (os.path.splitext(f)[1] in ['.txt']):
+            if os.path.isfile(f) and (os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']):
                 files.append(f)    
     elif os.path.isfile(txtpath):
-        if os.path.splitext(txtpath)[1] in ['.txt']:
+        if os.path.splitext(txtpath)[1].lower() in ['.txt','.doc','.docx']:
             files.append(txtpath)
 
                 
@@ -117,7 +118,7 @@ def getcsspath():
             p='packages/thtml/css/worg.css'
         else:
             p=os.path.abspath('/media/chen/Davis/python/packages/thtml/css/worg.css')
-    return p
+    return pathname2url(p)
 ################################################
 def C2htmlBase(txtpath,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
@@ -131,7 +132,7 @@ def C2htmlBase(txtpath,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
     
     files=[]
     if os.path.isfile(txtpath):
-        if os.path.splitext(txtpath)[1] in ['.txt']:
+        if os.path.splitext(txtpath)[1].lower() in ['.txt','.doc','.docx']:
             files.append(txtpath)
             #tname=os.path.splitext(os.path.basename(txtpath))[0]
                 

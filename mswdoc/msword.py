@@ -2,6 +2,7 @@
 # -*-coding:utf-8-*-
 
 import os
+from os.path import basename
 import sys
 import re
 #import pickle
@@ -10,6 +11,7 @@ import re
 #import shutil
 from docx import Document
 import subprocess
+from zipfile import ZipFile
 #need to install python-docx
 try:
     import win32com
@@ -94,6 +96,56 @@ def Doc2Docx(path):
 
     return
 
+def Msdoc2pic(path):
+     path=os.path.abspath(path)
+     ex=os.path.splitext(path)[1]
+     if ex == '.doc':
+         Doc2Docx(path)
+         path=path+'x'
+     doc = Document(path)
+     for shape in doc.inline_shapes:
+        contID=shape._inline.graphic.graphicData.pic.blipFile.blip.embed
+        contTp=doc.part.related_parts[contID].content_type
+        if not contTp.startswith('image'):
+            continue
+        imgN=basename(doc.part.related_parts[contID].partname)
+        imgD=doc.part.related_parts[contID]._blob
+        with open(imgN,'wb') as fp:
+            fp.write(imgD)
+            print('ok...')
+
+     if ex == '.doc':            
+        os.remove(path)
+     return
+
+def Msdoc2piczip(path):
+     path=os.path.abspath(path)
+     ex=os.path.splitext(path)
+     if ex[1] == '.doc':
+         Doc2Docx(path)
+         path=path+'x'
+
+     zipp=ex[0]+'.zip'
+     if  not os.path.exists(zipp):
+        os.rename(path,zipp)
+     f=ZipFile(zipp,'r')
+     tmp_path='tmp_path'
+     if not os.path.exists(tmp_path):
+         os.mkdir(tmp_path)
+
+     for ff in f.namelist():
+         f.extract(ff,tmp_path)
+     f.close()
+     if  not os.path.exists(path):
+        os.rename(zipp,path)
+     pic=os.listdir(os.path.join(tmp_path,'word/media'))
+     
+
+
+     if ex[1] == '.doc':            
+        os.remove(path)
+     return
+    
 def ReadDocument(path):
     """
     读取doc和docx文件，输入的文件路径。
@@ -108,7 +160,7 @@ def ReadDocument(path):
             Doc_To_Docx(path)
             doc=_read_docx(name)
         return doc
-    elif ex =='.docx':
+    if ex =='.docx':
         doc=_read_docx(path)
         return doc
 

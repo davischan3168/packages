@@ -9,6 +9,7 @@ import subprocess
 import shutil
 import util.ch2num as ut
 from thtml.utilth import GFlist
+from mswdoc.docx2txt import msdoc2text
 from thtml.abstract import (abssplit,abstract,absfile,absSPP)
 p=Pinyin()
 
@@ -148,7 +149,8 @@ def Singal_input(InFile,pyin=False):
     dname=os.path.dirname(path)
     ss=re.compile('第\w{1,3}[章编]')
     sss=re.compile('第\w{1,3}[节]')
-    name=os.path.splitext(os.path.basename(path))[0].replace('_','').replace(' ','').replace('·','').replace('，','').replace('&nbsp','').replace(';','').replace('〈','').replace('〉','').strip()
+    allname=os.path.splitext(os.path.basename(path))
+    name=allname[0].replace('_','').replace(' ','').replace('·','').replace('，','').replace('&nbsp','').replace(';','').replace('〈','').replace('〉','').strip()
     #print(name)
     
     if len(name)<12:
@@ -161,14 +163,20 @@ def Singal_input(InFile,pyin=False):
         dname='/'.join(rt1)
     outFile2=dname+'/'+outFile
 
-    try:
-        f=open(InFile,'r',encoding='utf8')
-        content=f.readlines()
-        f.close()
-    except:
-        f=open(InFile,'r',encoding='gbk')
-        content=f.readlines()
-        f.close()        
+    if allname[1].lower() in ['.doc','.docx']:
+        text=msdoc2text(path)
+        tl=text.split('\n')
+        content=[i.strip() for i in tl if len(i.strip())>0]
+
+    elif  allname[1].lower() in ['.txt']:
+        try:
+            f=open(InFile,'r',encoding='utf8')
+            content=f.readlines()
+            f.close()
+        except:
+            f=open(InFile,'r',encoding='gbk')
+            content=f.readlines()
+            f.close()        
 
     cts=[]
     for li in content:
@@ -179,7 +187,7 @@ def Singal_input(InFile,pyin=False):
         elif sss.match(li):
             cts.append(r'\subsubsection{%s}'%li.strip())
         elif re.match('\w{1,3}、',li):
-            cts.append(r'\subsection{%s}'%li.strip())               
+            cts.append(r'\subsubsection{%s}'%li.strip())               
         else:
             nl=li.strip()
             if len(nl)>0:
@@ -204,7 +212,7 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
     
     for root,dirs,files in os.walk(DirName):
         for f in files:
-            if os.path.splitext(f)[1] in ['.txt']:
+            if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
                 if sys.platform.startswith('win'):
                     rt1=root.split('\\')
                     root='/'.join(rt1)
@@ -288,7 +296,7 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
     
     for root,dirs,files in os.walk(DirName):
         for f in files:
-            if os.path.splitext(f)[1] in ['.txt']:
+            if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
                 if sys.platform.startswith('win'):
                     rt1=root.split('\\')
                     root='/'.join(rt1)
