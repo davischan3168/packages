@@ -117,7 +117,7 @@ def msdoc2text(docx,img_dir=None):
         Doc2Docx(docx)
         docx=docx+'x'
 
-    text = process(docx,img_dir)
+    text = process(docx,img_dir=img_dir)
     if ex == '.doc':            
         os.remove(path)
     return text
@@ -126,5 +126,6 @@ if __name__ == '__main__':
     #args = process_args()
     #text = process(args.docx, args.img_dir)
     #sys.stdout.write(text.encode('utf-8'))
-    text=docx2text(sys.argv[1])
+    #text=docx2text(sys.argv[1])
+    pass
     

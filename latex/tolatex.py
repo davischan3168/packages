@@ -12,7 +12,7 @@ from thtml.utilth import GFlist
 from mswdoc.docx2txt import msdoc2text
 from thtml.abstract import (abssplit,abstract,absfile,absSPP)
 p=Pinyin()
-
+cnum=re.compile('([一二三四五六七八九十百千万零]{1,5}、)')
 title=r"""
 \documentclass[myxecjk,msize]{gdhsarticle}%{kindle}
 \iffalse
@@ -117,11 +117,12 @@ def _removef(outpath):
             
     return
 
-def Singal_File(inFile,mtype='article',pyin=False):
+def Singal_File(inFile,mtype='article',pyin=False,\
+                item1_bool=False,item2_bool=False):
     txt_files={}
     name=os.path.basename(inFile).split('.')[0].replace('&nbsp','')
     outFile='SignalFile.tex'
-    txt_files[name]=Singal_input(inFile,pyin=pyin)
+    txt_files[name]=Singal_input(inFile,pyin=pyin,item1_bool=item1_bool,item2_bool=item2_bool)
     fl=open(outFile,'w',encoding='utf8')
     fl.write(latexs[mtype]+'\n\n')
     if pyin:
@@ -144,20 +145,21 @@ def Singal_File(inFile,mtype='article',pyin=False):
 
     return
 ###########################################
-def Singal_input(InFile,pyin=False):
+def Singal_input(InFile,pyin=False,\
+                 item1_bool=False,item2_bool=False):
     path=os.path.abspath(InFile)
     dname=os.path.dirname(path)
     ss=re.compile('第\w{1,3}[章编]')
     sss=re.compile('第\w{1,3}[节]')
+    rpls=re.compile('\W')
     allname=os.path.splitext(os.path.basename(path))
-    name=allname[0].replace('_','').replace(' ','').replace('·','').replace('，','').replace('&nbsp','').replace(';','').replace('〈','').replace('〉','').strip()
-    #print(name)
-    
+    name=rpls.sub('',allname[0]).strip()
     if len(name)<12:
         outFile=p.get_pinyin(name)+'.tex'
     else:
         outFile=p.get_initials(name)+'.tex'
     outFile=outFile.replace('、','').replace('&nbsp','').replace(':','').replace('-','').replace('：','').replace('（','').replace('）','').replace('《','').replace('》','').replace('—','')
+
     if sys.platform.startswith('win'):
         rt1=dname.split('\\')
         dname='/'.join(rt1)
@@ -179,24 +181,38 @@ def Singal_input(InFile,pyin=False):
             f.close()        
 
     cts=[]
+    cnum1=re.compile('^第([一二三四五六七八九十百千万零]{1,5})条\s*\n*$')
+    ctstmp=[]
+    cnum2=re.compile('^第([一二三四五六七八九十百千万零]{1,5})条\s*\w')
     for li in content:
+        li=li.lstrip()
         if li.strip() in ['裁判要点','基本案情','裁判结果','裁判理由','相关法条','【关键词】','【诉讼过程】','【基本案情】','【抗辩理由】','【案件结果】','【要旨】','【指导意义】','【相关法律规定】']:
             cts.append(r'\subsection{%s}'%li.strip())
         elif ss.match(li):
             cts.append(r'\subsection{%s}'%li.strip())
         elif sss.match(li):
             cts.append(r'\subsubsection{%s}'%li.strip())
-        elif re.match('\w{1,3}、',li):
-            cts.append(r'\subsubsection{%s}'%li.strip())               
+        elif cnum.match(li):
+            cts.append(r'\subsubsection{%s}'%li.strip())
+        elif (cnum1.match(li)) and item1_bool:
+            ctstmp.append(li.strip())
+        elif cnum2.match(li) and item2_bool:
+            ms1=cnum2.match(li).group()[:-1]
+            li=re.sub(ms1[:-1],ms1[:-1].strip()+r'\\hspace{1em}',li)
+            ctstmp.append(li)
         else:
-            nl=li.strip()
-            if len(nl)>0:
-                cts.append(nl)
+            li=li.strip()
+            if (len(li)>0)and(len(ctstmp)>0):
+                li=ctstmp.pop()+'\hspace{1em}'+li.strip()
+            cts.append(li)
     cts='\n\n'.join(cts).replace('&nbsp','')
-    #cts=re.sub(r'\\',r'/',cts)
     cts=cts.replace('#','\#').replace('&','\&').replace('$','\$').replace('|','\|').replace('_','\_')
     cts=re.sub(r'%',r'\%',cts)
-    
+
+    if os.path.exists(outFile2):
+        tmf=os.path.splitext(outFile2)
+        time.sleep(0.02)
+        outFile2=tmf[0]+'_%s'%int(time.time()*10000)+tmf[1]
     fl=open(outFile2,'w',encoding='utf8')
     fl.write(section%name)
     if pyin:
@@ -207,38 +223,64 @@ def Singal_input(InFile,pyin=False):
     fl.close()
     return outFile2
 ######################################
-def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
+def Generate_PdfFile(path,OutFile='Main',mtype='pad',\
+                     num=None,pyin=False,Total='max',res=True,\
+                     item1_bool=False,item2_bool=False):
+    file_list=[]
+    path_list=[]        
+    if isinstance(path,list):
+        for f in path:
+            if os.path.isfile(f):
+                file_list.append(f)
+            elif os.path.isdir(f):
+                path_list.append(f)
+            
+    elif os.path.isfile(path):
+        file_list.append(path)
+    elif os.path.isdir(path):
+        path_list.append(path)
+    elif path is None:
+        txtpath=os.getcwd()
+
+    else:
+        print('Please in list of dir/file,or dir,file')
+        sys.exit()
+        
+    Tem_files_list=[]
+    if len(path_list)>0:
+        for path in path_list:
+            for root,ds,fs in os.walk(path):
+                for f in fs:
+                    path=os.path.abspath(os.path.join(root,f))
+                    Tem_files_list.append(path)
+
+    if len(file_list)>0:
+        for f in file_list:
+            Tem_files_list.append(os.path.abspath(f))
+
     txt_files={}
-    
-    for root,dirs,files in os.walk(DirName):
-        for f in files:
-            if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
-                if sys.platform.startswith('win'):
-                    rt1=root.split('\\')
-                    root='/'.join(rt1)
-                pf=root+'/'+f
-                #print(pf)
-                if num is not None:
-                    fnum=num.findall(ut.ChNumToArab(f))
-                    if len(fnum)==0:
-                         txt_files[f]=Singal_input(pf,pyin)
-                    else:
-                         txt_files[fnum[0].zfill(3)]=Singal_input(pf,pyin)
+    for f in Tem_files_list:
+        f_name=os.path.basename(f)
+        if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
+            if num is not None:
+                fnum=num.findall(ut.ChNumToArab(f_name))
+                if len(fnum)==0:
+                    txt_files[f_name]=Singal_input(f,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
                 else:
-                    txt_files[f]=Singal_input(pf,pyin)
+                    txt_files[fnum[0].zfill(3)]=Singal_input(f,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
+            else:
+                txt_files[f_name]=Singal_input(f,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
 
                 
     if len(txt_files)>0:
-        txt_files1=sorted(txt_files.items(),key=lambda txt_files:txt_files[0])
-
-    print(txt_files1)
-    ##########################3
+        txt_files1=sorted(txt_files.items(),key=lambda txt:txt[0],reverse=res)                    
+        
     if Total=='max':
         OutFile1=OutFile+'.tex'
         fl=open(OutFile1,'w',encoding='utf8')
         fl.write(latexs[mtype]+'\n\n')        
-        for f in txt_files1:
-            fl.write('\input{%s}'%f[1])
+        for ff in txt_files1:
+            fl.write('\input{%s}'%ff[1])
             fl.write(r'\newpage')
             #fl.write('\n\n')
         
@@ -246,8 +288,6 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
         fl.close()
         os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
         os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
-        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
         _removef(OutFile1)
         ###########################3
     elif isinstance(Total,int):
@@ -274,6 +314,80 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
     else:
         print('Total is max out int, please input the right parameter.')
 
+    for f in txt_files1:
+        #print(f[1])
+        os.remove(f[1])
+        pass
+
+    return
+########################################
+def Mains(DirName,OutFile='Main',mtype='pad',num=None,\
+          pyin=False,Total='max',\
+          item1_bool=False,item2_bool=False):
+    txt_files={}
+    
+    for root,dirs,files in os.walk(DirName):
+        for f in files:
+            if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
+                if sys.platform.startswith('win'):
+                    rt1=root.split('\\')
+                    root='/'.join(rt1)
+                pf=root+'/'+f
+                #print(pf)
+                if num is not None:
+                    fnum=num.findall(ut.ChNumToArab(f))
+                    if len(fnum)==0:
+                         txt_files[f]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
+                    else:
+                         txt_files[fnum[0].zfill(3)]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
+                else:
+                    txt_files[f]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
+
+                
+    if len(txt_files)>0:
+        txt_files1=sorted(txt_files.items(),key=lambda txt_files:txt_files[0])
+
+    print(txt_files1)
+    ##########################3
+    if (Total=='max') or (len(txt_files)<Total):
+        OutFile1=OutFile+'.tex'
+        fl=open(OutFile1,'w',encoding='utf8')
+        fl.write(latexs[mtype]+'\n\n')        
+        for f in txt_files1:
+            fl.write('\input{%s}'%f[1])
+            fl.write(r'\newpage')
+            #fl.write('\n\n')
+        
+        fl.write(end)
+        fl.close()
+        os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+        os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+        #cmd=subprocess.Popen('xelatex -no-pdf -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+        #cmd=subprocess.Popen('xelatex -interaction=nonstopmode %s'%OutFile1,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)        
+        _removef(OutFile1)
+        ###########################3
+    elif isinstance(Total,int) and (len(txt_files)>Total):
+        txp=[txt_files1[i:i+Total] for i in range(0,len(txt_files),Total)]
+            #fn=1
+        for ii,ff in enumerate(txp):
+            OutFile1=OutFile+'_%s.tex'%str(ii).zfill(2)
+            fl=open(OutFile1,'w',encoding='utf8')
+            fl.write(latexs[mtype]+'\n\n')
+            for f in ff:
+                fl.write('\input{%s}'%f[1])
+                fl.write(r'\newpage')
+                fl.write('\n')
+        
+            fl.write(end)
+            fl.close()
+            os.system('xelatex -no-pdf -interaction=nonstopmode %s' %OutFile1)
+            os.system('xelatex -interaction=nonstopmode %s' %OutFile1)
+            _removef(OutFile1)
+            #fn +=1
+        
+    else:
+        print('Total is max out int, please input the right parameter.')
+
 
     for root,dirs,files in os.walk(DirName):
         for f in files:
@@ -284,7 +398,9 @@ def Mains(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max'):
     return
 
 ###############################################################################3
-def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',Research=None,startw=None):
+def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,\
+            pyin=False,Total='max',Research=None,\
+            startw=None,item1_bool=False,item2_bool=False):
     txt_files={}
     rsch=[]
 
@@ -305,19 +421,19 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
                 if num is not None:
                     fnum=num.findall(ut.ChNumToArab(f))
                     if len(fnum)==0:
-                         txt_files[f]=Singal_input(pf,pyin)
+                         txt_files[f]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
                     else:
-                         txt_files[fnum[0].zfill(3)]=Singal_input(pf,pyin)
+                         txt_files[fnum[0].zfill(3)]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
                 elif (num is None) and (Research is not None):
                     for i in rsch:
                         if i in f:
-                            txt_files[f]=Singal_input(pf,pyin)
+                            txt_files[f]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
                 elif (num is None) and (startw is not None):
                     if startw.match(f) is not None:
-                        txt_files[f]=Singal_input(pf,pyin)
+                        txt_files[f]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)
                     
                 else:
-                     txt_files[f]=Singal_input(pf,pyin)       
+                     txt_files[f]=Singal_input(pf,pyin,item1_bool=item1_bool,item2_bool=item2_bool)       
 
 
 
@@ -378,7 +494,11 @@ def MainsGF(DirName,OutFile='Main',mtype='pad',num=None,pyin=False,Total='max',R
 
     return
 ###############################################
-def MainsAbs(txtpath,func=abssplit,OutFile='Mainabs',mtype='pad',pyin=False,Total='max',regrex1=None,Research=None,Startw=None,rc=re.compile('\裁判要点\W*(.*?)\W*相关法条'),p1=re.compile('裁判要点'),p2=re.compile('相关法条')):
+def MainsAbs(txtpath,func=abssplit,OutFile='Mainabs',mtype='pad',\
+             pyin=False,Total='max',regrex1=None,Research=None,\
+             Startw=None,rc=re.compile('\裁判要点\W*(.*?)\W*相关法条'),\
+             p1=re.compile('裁判要点'),p2=re.compile('相关法条'),\
+             item1_bool=False,item2_bool=False):
     txt_files={}
     rsch=[]
 
@@ -488,7 +608,11 @@ def MainsAbs(txtpath,func=abssplit,OutFile='Mainabs',mtype='pad',pyin=False,Tota
     shutil.rmtree(tdir)
     return
 
-def MainSpp(path,outdir='itempdit',regrex1=re.compile('检例第(\d*)号'),rc=re.compile('(.*?案\s*（检例第\d*号）)'),p1=re.compile('【要旨】'),p2=re.compile('\【\w*】'),yz=True,OutFile='MainSpp',mtype='pad',pyin=False,Total='max'):  
+def MainSpp(path,outdir='itempdit',regrex1=re.compile('检例第(\d*)号'),\
+            rc=re.compile('(.*?案\s*（检例第\d*号）)'),\
+            p1=re.compile('【要旨】'),p2=re.compile('\【\w*】'),\
+            yz=True,OutFile='MainSpp',mtype='pad',\
+            pyin=False,Total='max',item1_bool=False,item2_bool=False):  
 
 
     if outdir=='':

@@ -22,7 +22,6 @@ def getfilelist(path,regrex1=None,Research=None):
             if regrex1 is not None:
                 #print('ok....1')
                 if os.path.splitext(f)[1].lower() in ['.txt','.doc','.docx']:
-                    
                     if len(re.findall(regrex1,f))>0:
                         num=int((regrex1.findall(f)[0]))
                         ss[num]=os.path.abspath(os.path.join(root,f))
@@ -33,7 +32,6 @@ def getfilelist(path,regrex1=None,Research=None):
                     dd=sorted(ss.items(),key=lambda item:item[0])
             else:
                 #print('ok ......2')
-                
                 ss[f]=os.path.abspath(root+'/'+f)
                 dd=sorted(ss.items(),key=lambda item:item[0])
     if (regrex1 is None) and (Research is not None):
@@ -42,7 +40,7 @@ def getfilelist(path,regrex1=None,Research=None):
 
     return dd
 
-def C2html(txtpath,output='output.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
+def C2html(txtpath,output='output',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtpath:为单独的文件、一系列文件或一段字符
     并将这些文件中的内容输出到一份html 文件中
@@ -72,8 +70,11 @@ def C2html(txtpath,output='output.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m
                 
     else:
         sys.exit()
-        
 
+    if output=='':
+        output='output.html'
+    else:
+        output=output+'.html'
 
     if os.path.exists(output):
        os.remove(output)
@@ -112,15 +113,16 @@ def getcsspath():
         if os.getcwd() in ['J:\\python']:
             p='packages/thtml/css/worg.css'
         else:
-            p=os.path.abspath('J:/python/packages/thtml/css/worg.css')
+            p='J:/python/packages/thtml/css/worg.css'
     elif sys.platform in ['linux']:
         if os.getcwd() in ['/media/chen/Davis/python']:
             p='packages/thtml/css/worg.css'
         else:
-            p=os.path.abspath('/media/chen/Davis/python/packages/thtml/css/worg.css')
+            p='/media/chen/Davis/python/packages/thtml/css/worg.css'
+    p=os.path.abspath(p)
     return pathname2url(p)
 ################################################
-def C2htmlBase(txtpath,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
+def C2htmlBase(txtpath,output='outputbase.html',m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),m4=re.compile(r'^\w{1,3}、'),index=True):
     """
     txtpath:为单独的文件或一段字符
     
@@ -144,6 +146,7 @@ def C2htmlBase(txtpath,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
         files.append(path123)
                 
     else:
+        print('Please input a file for txt,doc,or strings')
         sys.exit()
         
 
@@ -221,7 +224,7 @@ def C2html_AllinOnev1(txtpath=None,output='output.html',regrex1=re.compile('\d{1
 ####################################################
 def C2html_AllinOne(txtpath=None,regrex1=re.compile('\d{1,3}'),index=True):
     """
-    将目录txtpath下的txt文件内容全部转到output.html文件中
+     将目录txtpath下的txt文件内容全部转到output.html文件中
     px:文中排序的基准。
     """
     files=[]

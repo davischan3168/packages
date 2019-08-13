@@ -95,7 +95,66 @@ def Doc2Docx(path):
         output = subprocess.check_output(["soffice","--headless","--invisible","--convert-to","docx",path,"--outdir",os.path.split(path)[0]])
 
     return
+########################################
+def MSOffice_change_type(docpath,dest_ftype='docx'):
+    """
+    wdFormatDocument = 0
+    wdFormatDocument97 = 0
+    wdFormatDocumentDefault = 16
+    wdFormatDOSText = 4
+    wdFormatDOSTextLineBreaks = 5
+    wdFormatEncodedText = 7
+    wdFormatFilteredHTML = 10
+    wdFormatFlatXML = 19
+    wdFormatFlatXMLMacroEnabled = 20
+    wdFormatFlatXMLTemplate = 21
+    wdFormatFlatXMLTemplateMacroEnabled = 22
+    wdFormatHTML = 8
+    wdFormatPDF = 17
+    wdFormatRTF = 6
+    wdFormatTemplate = 1
+    wdFormatTemplate97 = 1
+    wdFormatText = 2
+    wdFormatTextLineBreaks = 3
+    wdFormatUnicodeText = 7
+    wdFormatWebArchive = 9
+    wdFormatXML = 11
+    wdFormatXMLDocument = 12
+    wdFormatXMLDocumentMacroEnabled = 13
+    wdFormatXMLTemplate = 14
+    wdFormatXMLTemplateMacroEnabled = 15
+    wdFormatXPS = 18
+    """
+    ftype={'doc':0,'docx':16,'untxt':7,'html':8,'txt':2,'pdf':17}
+    path=os.path.abspath(docpath)
+    name=path+'x'
+    word=Dispatch('Word.Application')
+    word.Visible = 0
+    doc = word.Documents.Open(path)
+    
+    if os.path.exists(name):
+        os.remove(name)
+    doc.SaveAs(name,ftype[dest_ftype], False, "", True, "", False, False, False, False)
+    doc.Close()
+    #word.Quit
+    return
+###################
+def LibreOffice_change_type(docpath,dest_ftype='docx'):
+    ftype=['doc','docx','txt','html','pdf']
+    dest_ftype=dest_ftype.lower()
+    if dest_ftype not in ftype:
+        dest_ftype=input("输入需要转为后的文件类型:")
 
+    output = subprocess.check_output(["soffice","--headless","--invisible","--convert-to","%s"%dest_ftype,docpath,"--outdir",os.path.split(docpath)[0]])
+    return
+###############################
+def FileTypeChange(docpath,dest_ftype='docx'):
+    if sys.platform=='win32':
+        MSOffice_change_type(docpath,dest_ftype=dest_ftype)
+    elif sys.platform=='linux':    
+        LibreOffice_change_type(docpath,dest_ftype=dest_ftype)
+    return
+#################################
 def Msdoc2pic(path):
      path=os.path.abspath(path)
      ex=os.path.splitext(path)[1]
@@ -117,7 +176,7 @@ def Msdoc2pic(path):
      if ex == '.doc':            
         os.remove(path)
      return
-
+###########################################
 def Msdoc2piczip(path):
      path=os.path.abspath(path)
      ex=os.path.splitext(path)
@@ -139,13 +198,10 @@ def Msdoc2piczip(path):
      if  not os.path.exists(path):
         os.rename(zipp,path)
      pic=os.listdir(os.path.join(tmp_path,'word/media'))
-     
-
-
      if ex[1] == '.doc':            
         os.remove(path)
      return
-    
+#############################################    
 def ReadDocument(path):
     """
     读取doc和docx文件，输入的文件路径。

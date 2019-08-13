@@ -47,39 +47,17 @@ def audiosn_to_one(paths,sln=3.5,ntotal='max',repeat=1):
         ntotal=len(sounds)
         
     if len(sounds)<=ntotal:
-        if repeat==1:
-            playlist=AudioSegment.empty() 
-            for sound in sounds:
-                playlist += sound
-                playlist += mysilence
-        elif repeat>1:
-            for sound in sounds:
-                playlist=AudioSegment.empty() 
-                for _ in range(repeat):
-                    playlist += sound
-                    playlist += mysilence
-        
-        playlist.export('output_%s.wav'%str(int(time.time())),format='wav')
+        _audios2one(sounds,sln=sln,repeat=repeat)
+        print('1: repeat %s , silence %s for %s files'%(repeat,sln,ntotal))
     elif len(sounds)>ntotal:
         msounds=[sounds[i:i+ntotal] for i in range(0,len(sounds),ntotal)]
-        if repeat==1:
-            playlist=AudioSegment.empty()
-            for ss in msounds:
-                for s in ss:
-                    playlist += s
-                    playlist += mysilence
-            playlist.export('output_%s.wav'%str(int(time.time())),format='wav')  
-        elif repeat>1:
-            for ss in msounds:
-                playlist=AudioSegment.empty() 
-                for s in ss:
-                    for _ in range(repeat):
-                        playlist += s
-                        playlist += mysilence
-                playlist.export('output_%s.wav'%str(int(time.time())),format='wav')  
+        for ss in msounds:
+            _audios2one(ss,sln=sln,repeat=repeat)
+            print('4:repeat %s , silence %s for %s files'%(repeat,sln,ntotal))
     else:
         print("Only one file,not to be combine the files")
     return
+
 ##########################################
 def audios_to_one(paths,sln=3.5,repeat=1):
     """
@@ -91,10 +69,11 @@ def audios_to_one(paths,sln=3.5,repeat=1):
     sounds=[]
     if isinstance(paths,list):
         for path in paths:
+            print(path)
             if os.path.isfile(path):
                 dp=os.path.splitext(path)
                 if dp[1] in audiolist:
-                    sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
+                    sounds.append(AudioSegment.from_file(path,format=dp[1].replace('.','')))
 
     elif os.path.isdir(paths):
         for root,dirs,files in os.walk(paths):
@@ -106,11 +85,18 @@ def audios_to_one(paths,sln=3.5,repeat=1):
 
     elif os.path.isfile(paths):
         if os.path.splitext(path)[1] in audiolist:
-            sounds.append(AudioSegment.from_file(root+'/'+f,format=dp[1].replace('.','')))
+            sounds.append(AudioSegment.from_file(paths,format=dp[1].replace('.','')))
 
     else:
         sys.exit()
 
+    if len(sounds)>1:
+        _audios2one(sounds,sln=sln,repeat=repeat)
+    else:
+        print("Only one file,not to be combine the files")
+    return
+#################################
+def _audios2one(sounds,sln,repeat):
     if len(sounds)>1:
         mysilence = AudioSegment.silent(duration=sln*1000)
         playlist=AudioSegment.empty()
@@ -128,9 +114,10 @@ def audios_to_one(paths,sln=3.5,repeat=1):
     
         #mtype=os.path.splitext(output)
         
-        playlist.export('output_%s.wav'%str(int(time.time())),format='wav')
+        playlist.export('output_%s.wav'%str(int(time.time())*100),format='wav')
     else:
         print("Only one file,not to be combine the files")
+
     return
 #################################################
 def audio_split(path,min_sl=300,sth=-40):

@@ -50,7 +50,7 @@ def _hh(txtName):
     return htmlcode1
     
 ##########################################3
-def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=True):
+def txt2htmlv1(txtName, output="outputtxt",m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^第\w{1,3}章'),m3=re.compile(r'^第\w{1,3}节'),index=True):
     """
     txtName:文件的名称（含所在的文件夹）
     index：  True,将第四节的列入目录
@@ -66,8 +66,13 @@ def txt2htmlv1(txtName,m1=re.compile(r'^第\w{1,3}[编|篇]'),m2=re.compile(r'^�
     elif isinstance(txtName,list):
         files.extend(txtName)
 
-    htmlName="outputtxt.html"
-    
+
+    if output=='':
+        htmlName="outputtxt.html"
+    else:
+        output=output+'.html'
+
+    htmlName=output
 
     tb,ctt=make_Mulu_content(files)
     if os.path.exists(htmlName):
