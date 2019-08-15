@@ -3,6 +3,7 @@
 import os
 from AI.BDAI.ocr import (BD_jsonTtext,BD_ocrAllIn1dir,BD_ocr1By1dir,BD_table_orc)
 from AI.BDAI.tts import (BD_text2audio,BD_audio2text,BD_textTaudio,BD_audio2textAll)
+from AI.BDAI.conpdf import picsTpdf
 #from AI.BDAI.translate import BD_trans
 ################################
 from AI.TSAI.asr import TS_asr_echo
@@ -23,6 +24,7 @@ from AI.util.tpdf import (imgLongsplitimage2A4,imgsto1pdf,imgLongplitT1pdf,imgLo
 from AI.util.textsplit import (BD_text_split,TS_text_split)
 from AI.util.audiopy import (new_from_audio,audio_split_combine,audio_split,audios_to_one,audiosn_to_one)
 from AI.trans.youdaodictvoice import (download_audio,download_audio_YX)
+
 def Ocr_1By1dir(dirname,func=BD_jsonTtext):
     """
     将目录下的jpg等图片文件转为txt文本文件。

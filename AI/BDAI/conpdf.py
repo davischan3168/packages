@@ -21,7 +21,7 @@ def file_name(file_dir, suffix =[ ".jpg",'.jpeg','.png']):
  
 
 
-def conpdf(f_pdf , filedir, suffix):
+def picsTpdf(f_pdf , filedir, suffix):
     #f_pdf pdf file path ,include filename
     #filedir pic file path
     #suffix pic file suffix examples: .jpg
@@ -67,7 +67,8 @@ def conpdf(f_pdf , filedir, suffix):
         #c.drawImage(f, posx, posy, widthx-2*cm, widthy)
         #c.showPage()
     c.save()
-    print("Image to pdf success!")
+    #print("Image to pdf success!")
+    return
 
 if __name__=="__main__":
     conpdf('test1.pdf','audio','.jpeg')
