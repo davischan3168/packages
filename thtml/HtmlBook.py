@@ -80,6 +80,19 @@ def GenerateBookGF(path,regrex1=None,\
     for ff in File_tmp:
         file_list.append(ff[1])
 
+    only_one=set()
+    fls=[]
+    word=re.compile(r'[\u4e00-\u9fa5]+')
+    for ff in file_list:
+        aa=os.path.basename(ff)
+        nwd=''.join(word.findall(aa))
+        if nwd not in only_one:
+            only_one.add(nwd)
+            fls.append(ff)
+
+    if len(fls)>0:
+        file_list=fls    
+
     temff=set()    
     if exclude is not None:
         for ff in file_list:

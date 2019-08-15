@@ -118,12 +118,28 @@ def GFlistv1(path,\
             for f in fs:
                 file_list.append(os.path.abspath(os.path.join(root,f)))
 
-    temff=set()    
+    
+    only_one=set()
+    fls=[]
+    word=re.compile(r'[\u4e00-\u9fa5]+')
+    for ff in file_list:
+        aa=os.path.basename(ff)
+        nwd=''.join(word.findall(aa))
+        if nwd not in only_one:
+            only_one.add(nwd)
+            fls.append(ff)
+
+    if len(fls)>0:
+        file_list=fls
+            
+    temff=set()
     if exclude is not None:
         for ff in file_list:
             for ex in excl:
-                if ex in os.path.basename(ff):
+                aa=os.path.basename(ff)
+                if ex in aa:
                     temff.add(ff)
+    
 
     File_tmp=[f for f in file_list if f not in temff]
 
