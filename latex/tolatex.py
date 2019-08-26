@@ -151,7 +151,8 @@ def Singal_input(InFile,pyin=False,\
     dname=os.path.dirname(path)
     ss=re.compile('第\w{1,3}[章编]')
     sss=re.compile('第\w{1,3}[节]')
-    rpls=re.compile('\W')
+    rpls=re.compile('[\W_#]')
+    #ss=re.compile('_')
     allname=os.path.splitext(os.path.basename(path))
     name=rpls.sub('',allname[0]).strip()
     if len(name)<12:

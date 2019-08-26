@@ -154,6 +154,18 @@ def FileTypeChange(docpath,dest_ftype='docx'):
     elif sys.platform=='linux':    
         LibreOffice_change_type(docpath,dest_ftype=dest_ftype)
     return
+##########################
+def FileTypeChange_dir(pathdir,dest_ftype='docx'):
+    for root,ds,fs in os.walk(pathdir):
+        for f in fs:
+            dd=os.path.splitext(f)
+            if dd[1] in ['.doc','.docx']:
+                if re.match('^~\w',dd[0]) is None:
+                    path=os.path.join(root,f)
+                    print(path)
+                    FileTypeChange(path,dest_ftype=dest_ftype)
+    return
+
 #################################
 def Msdoc2pic(path):
      path=os.path.abspath(path)

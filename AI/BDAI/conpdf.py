@@ -7,6 +7,9 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch,cm
 import sys
+from PyPDF2 import PdfFileReader,PdfFileWriter
+import time
+
 
  
 
@@ -14,7 +17,7 @@ def file_name(file_dir, suffix =[ ".jpg",'.jpeg','.png']):
     L=[]
     for root, dirs, files in os.walk(file_dir):
         for file in files:
-            if os.path.splitext(file)[1] in suffix:
+            if os.path.splitext(file)[1].lower() in suffix:
                 L.append(os.path.join(root, file))
     return L
 
@@ -70,5 +73,37 @@ def picsTpdf(f_pdf , filedir, suffix):
     #print("Image to pdf success!")
     return
 
+def MergePDFs(filepath,outfile='outpdf.pdf'):
+    output=PdfFileWriter()
+    outputPages=0
+    pdf_fileName=file_name(filepath, suffix =[".pdf"])
+    for each in pdf_fileName:
+        print(each)
+        # 读取源pdf文件
+        input = PdfFileReader(open(each, "rb"))
+
+        # 如果pdf文件已经加密，必须首先解密才能使用pyPdf
+        if input.isEncrypted == True:
+            input.decrypt("map")
+
+        # 获得源pdf文件中页面总数
+        pageCount = input.getNumPages()
+        outputPages += pageCount
+        print(pageCount)
+
+        # 分别将page添加到输出output中
+        for iPage in range(0, pageCount):
+            output.addPage(input.getPage(iPage))
+
+
+    print("All Pages Number:"+str(outputPages))
+    # 最后写pdf文件
+    outputStream=open(filepath+outfile,"wb")
+    output.write(outputStream)
+    outputStream.close()
+    print("finished")
+    return
+
 if __name__=="__main__":
-    conpdf('test1.pdf','audio','.jpeg')
+    #conpdf('test1.pdf','audio','.jpeg')
+    pass#drawImage
